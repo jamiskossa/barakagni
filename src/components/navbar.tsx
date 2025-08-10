@@ -11,6 +11,9 @@ export function Navbar() {
     { href: "/courses", label: "Courses", icon: <GraduationCap className="h-4 w-4" /> },
   ];
 
+  // This is a placeholder for authentication state
+  const isSignedIn = false;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -36,10 +39,18 @@ export function Navbar() {
 
         <div className="flex flex-1 items-center justify-end space-x-2">
           <div className="hidden md:flex">
-             <Button>
-                <UserCircle className="mr-2 h-4 w-4" />
-                Sign In
+            {isSignedIn ? (
+               <Button variant="ghost" size="icon">
+                  <UserCircle className="h-6 w-6" />
+               </Button>
+            ) : (
+              <Button asChild>
+                <Link href="/login">
+                  <UserCircle className="mr-2 h-4 w-4" />
+                  Sign In
+                </Link>
               </Button>
+            )}
           </div>
           <Sheet>
             <SheetTrigger asChild>
@@ -69,10 +80,19 @@ export function Navbar() {
                   ))}
                 </div>
                 <div className="mt-auto">
-                   <Button className="w-full">
-                    <UserCircle className="mr-2 h-5 w-5" />
-                    Sign In
-                  </Button>
+                   {isSignedIn ? (
+                     <Button className="w-full">
+                        <UserCircle className="mr-2 h-5 w-5" />
+                        Profile
+                      </Button>
+                   ) : (
+                     <Button className="w-full" asChild>
+                       <Link href="/login">
+                        <UserCircle className="mr-2 h-5 w-5" />
+                        Sign In
+                       </Link>
+                    </Button>
+                   )}
                 </div>
               </div>
             </SheetContent>
