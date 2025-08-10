@@ -1,9 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Briefcase, GraduationCap, UserCircle } from "lucide-react";
+import { Menu, Briefcase, GraduationCap, UserCircle, LogOut } from "lucide-react";
 
 export function Navbar() {
   const navLinks = [
@@ -11,8 +21,24 @@ export function Navbar() {
     { href: "/courses", label: "Formations", icon: <GraduationCap className="h-4 w-4" /> },
   ];
 
-  // This is a placeholder for authentication state
-  const isSignedIn = false;
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check localStorage on mount on the client side
+    if (typeof window !== "undefined") {
+      const signedIn = localStorage.getItem("isSignedIn") === "true";
+      setIsSignedIn(signedIn);
+    }
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem("isSignedIn");
+    setIsSignedIn(false);
+    router.push("/");
+    router.refresh();
+  };
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -40,9 +66,24 @@ export function Navbar() {
         <div className="flex flex-1 items-center justify-end space-x-2">
           <div className="hidden md:flex">
             {isSignedIn ? (
-               <Button variant="ghost" size="icon">
-                  <UserCircle className="h-6 w-6" />
-               </Button>
+               <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <UserCircle className="h-6 w-6" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Profil</DropdownMenuItem>
+                  <DropdownMenuItem>Paramètres</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Se déconnecter</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <Button asChild>
                 <Link href="/login">
@@ -81,9 +122,9 @@ export function Navbar() {
                 </div>
                 <div className="mt-auto">
                    {isSignedIn ? (
-                     <Button className="w-full">
-                        <UserCircle className="mr-2 h-5 w-5" />
-                        Profil
+                     <Button className="w-full" onClick={handleSignOut}>
+                        <LogOut className="mr-2 h-5 w-5" />
+                        Se déconnecter
                       </Button>
                    ) : (
                      <Button className="w-full" asChild>
