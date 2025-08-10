@@ -14,9 +14,7 @@ export default function LoginPage() {
     event.preventDefault();
     // Simulate successful login
     localStorage.setItem("isSignedIn", "true");
-    router.push("/");
-    // This is a bit of a hack to force a re-render of the navbar
-    router.refresh(); 
+    router.push("/profile");
   };
 
   return (

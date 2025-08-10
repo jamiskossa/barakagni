@@ -30,7 +30,7 @@ export function Navbar() {
       const signedIn = localStorage.getItem("isSignedIn") === "true";
       setIsSignedIn(signedIn);
     }
-  }, []);
+  }, [router]);
 
   const handleSignOut = () => {
     localStorage.removeItem("isSignedIn");
@@ -75,7 +75,9 @@ export function Navbar() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Profil</DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">Profil</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem>Paramètres</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>

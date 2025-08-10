@@ -20,8 +20,7 @@ export default function SignupPage() {
     event.preventDefault();
     // Simulate successful signup and login
     localStorage.setItem("isSignedIn", "true");
-    router.push("/");
-    router.refresh();
+    router.push("/profile");
   };
 
   return (

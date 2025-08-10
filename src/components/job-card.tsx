@@ -17,14 +17,14 @@ type JobCardProps = {
 export function JobCard({ title, category, location, type, company, imageUrl, dataAiHint }: JobCardProps) {
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-lg flex flex-col">
-      <CardHeader className="p-0">
-        <div className="relative h-48 w-full">
+       <CardHeader className="p-0">
+        <div className="relative h-48 w-full bg-muted flex items-center justify-center">
           <Image
             src={imageUrl}
             alt={title}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover"
+            width={150}
+            height={150}
+            className="object-contain"
             data-ai-hint={dataAiHint}
           />
         </div>

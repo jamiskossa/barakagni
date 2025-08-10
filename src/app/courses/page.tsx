@@ -7,7 +7,7 @@ const courseData = [
     duration: "6 semaines",
     certification: true,
     provider: "Institut Technique de l'Afrique de l'Ouest",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "/logo.png",
     dataAiHint: "electrical classroom",
   },
   {
@@ -16,7 +16,7 @@ const courseData = [
     duration: "4 semaines",
     certification: true,
     provider: "École Professionnelle de Dakar",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "/logo.png",
     dataAiHint: "plumbing class",
   },
   {
@@ -25,7 +25,7 @@ const courseData = [
     duration: "8 semaines",
     certification: true,
     provider: "Guilde des Artisans d'Abidjan",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "/logo.png",
     dataAiHint: "woodworking class",
   },
   {
@@ -34,7 +34,7 @@ const courseData = [
     duration: "3 semaines",
     certification: false,
     provider: "Académie Solaire du Sahel",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "/logo.png",
     dataAiHint: "solar panels",
   },
    {
@@ -43,7 +43,7 @@ const courseData = [
     duration: "5 semaines",
     certification: true,
     provider: "École de Commerce de la CEDEAO",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "/logo.png",
     dataAiHint: "business meeting",
   },
   {
@@ -52,7 +52,7 @@ const courseData = [
     duration: "6 semaines",
     certification: true,
     provider: "Collège Technique de Lomé",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "/logo.png",
     dataAiHint: "welding sparks",
   },
 ];

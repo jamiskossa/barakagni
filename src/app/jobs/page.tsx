@@ -7,7 +7,7 @@ const jobData = [
     location: "Conakry, Guinée",
     type: "Temps plein",
     company: "Conakry Constructions Co.",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "/logo.png",
     dataAiHint: "electrician working",
   },
   {
@@ -16,7 +16,7 @@ const jobData = [
     location: "Dakar, Sénégal",
     type: "Contrat",
     company: "Services des Eaux de Dakar",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "/logo.png",
     dataAiHint: "plumber pipes",
   },
   {
@@ -25,7 +25,7 @@ const jobData = [
     location: "Abidjan, Côte d'Ivoire",
     type: "Temps plein",
     company: "Ivoire Climate Control",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "/logo.png",
     dataAiHint: "hvac system",
   },
   {
@@ -34,7 +34,7 @@ const jobData = [
     location: "Lomé, Togo",
     type: "Temps partiel",
     company: "Togo Fine Woods",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "/logo.png",
     dataAiHint: "carpenter workshop",
   },
    {
@@ -43,7 +43,7 @@ const jobData = [
     location: "Bamako, Mali",
     type: "Temps plein",
     company: "Groupe de Construction du Mali",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "/logo.png",
     dataAiHint: "masonry construction",
   },
   {
@@ -52,7 +52,7 @@ const jobData = [
     location: "Ouagadougou, Burkina Faso",
     type: "Temps plein",
     company: "Burkina Auto Repair",
-    imageUrl: "https://placehold.co/600x400.png",
+    imageUrl: "/logo.png",
     dataAiHint: "auto mechanic",
   },
 ];
