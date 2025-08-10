@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { keywordExtractionRecommendations } from "@/ai/flows/keyword-extraction-recommendations";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,7 +30,7 @@ function SubmitButton() {
 }
 
 export function RecommendationEngine() {
-  const [state, formAction] = useFormState(
+  const [state, formAction] = useActionState(
     async (
       prevState: RecommendationState,
       formData: FormData
