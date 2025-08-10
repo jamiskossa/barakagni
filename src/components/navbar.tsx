@@ -7,8 +7,8 @@ import { Menu, Briefcase, GraduationCap, UserCircle } from "lucide-react";
 
 export function Navbar() {
   const navLinks = [
-    { href: "/jobs", label: "Jobs", icon: <Briefcase className="h-4 w-4" /> },
-    { href: "/courses", label: "Courses", icon: <GraduationCap className="h-4 w-4" /> },
+    { href: "/jobs", label: "Emplois", icon: <Briefcase className="h-4 w-4" /> },
+    { href: "/courses", label: "Formations", icon: <GraduationCap className="h-4 w-4" /> },
   ];
 
   // This is a placeholder for authentication state
@@ -47,7 +47,7 @@ export function Navbar() {
               <Button asChild>
                 <Link href="/login">
                   <UserCircle className="mr-2 h-4 w-4" />
-                  Sign In
+                  Connexion
                 </Link>
               </Button>
             )}
@@ -56,7 +56,7 @@ export function Navbar() {
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden">
                 <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle Menu</span>
+                <span className="sr-only">Ouvrir le menu</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
@@ -83,13 +83,13 @@ export function Navbar() {
                    {isSignedIn ? (
                      <Button className="w-full">
                         <UserCircle className="mr-2 h-5 w-5" />
-                        Profile
+                        Profil
                       </Button>
                    ) : (
                      <Button className="w-full" asChild>
                        <Link href="/login">
                         <UserCircle className="mr-2 h-5 w-5" />
-                        Sign In
+                        Connexion
                        </Link>
                     </Button>
                    )}

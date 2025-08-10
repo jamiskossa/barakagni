@@ -45,7 +45,7 @@ export function JobCard({ title, category, location, type, company, imageUrl, da
         </div>
       </CardContent>
       <CardFooter className="p-4 mt-auto">
-        <Button className="w-full">Apply Now</Button>
+        <Button className="w-full">Postuler</Button>
       </CardFooter>
     </Card>
   );

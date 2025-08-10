@@ -24,7 +24,7 @@ function SubmitButton() {
   return (
     <Button type="submit" disabled={pending} size="lg" className="w-full sm:w-auto">
       {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}
-      Get Recommendations
+      Obtenir des Recommandations
     </Button>
   );
 }
@@ -37,17 +37,17 @@ export function RecommendationEngine() {
     ): Promise<RecommendationState> => {
       const query = formData.get("query") as string;
       if (!query?.trim()) {
-        return { error: "Please enter a query to get recommendations." };
+        return { error: "Veuillez saisir une demande pour obtenir des recommandations." };
       }
       try {
         const result = await keywordExtractionRecommendations({ query });
         if (!result.keywords?.length && !result.jobRecommendations?.length && !result.courseRecommendations?.length) {
-          return { error: "We couldn't find specific recommendations for your query. Please try rephrasing it." };
+          return { error: "Nous n'avons pas trouvé de recommandations spécifiques pour votre demande. Veuillez essayer de la reformuler." };
         }
         return result;
       } catch (error) {
         console.error(error);
-        return { error: "An AI error occurred. Please try again later." };
+        return { error: "Une erreur de l'IA est survenue. Veuillez réessayer plus tard." };
       }
     },
     initialState
@@ -59,7 +59,7 @@ export function RecommendationEngine() {
         <form action={formAction} className="space-y-4">
           <Textarea
             name="query"
-            placeholder="e.g., 'Je cherche des missions d'électricité à Conakry' or 'basic plumbing courses'"
+            placeholder="Ex: 'Je cherche des missions d'électricité à Conakry' ou 'cours de plomberie de base'"
             className="min-h-[100px] text-base"
             required
           />
@@ -75,7 +75,7 @@ export function RecommendationEngine() {
                 <CardHeader>
                   <CardTitle className="flex items-center text-destructive text-lg font-headline">
                     <ServerCrash className="mr-2 h-5 w-5" />
-                    Apologies
+                    Désolé
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -86,7 +86,7 @@ export function RecommendationEngine() {
 
             {state.keywords && state.keywords.length > 0 && (
               <div>
-                <h3 className="font-headline text-xl font-semibold text-primary mb-4">Identified Keywords</h3>
+                <h3 className="font-headline text-xl font-semibold text-primary mb-4">Mots-clés identifiés</h3>
                 <div className="flex flex-wrap gap-2">
                   {state.keywords.map((keyword, index) => (
                     <Badge key={index} variant="secondary" className="text-base py-1 px-3">
@@ -102,7 +102,7 @@ export function RecommendationEngine() {
                 <div className="space-y-4">
                   <h3 className="font-headline text-xl font-semibold text-primary flex items-center">
                     <Briefcase className="mr-2 h-5 w-5" />
-                    Job Recommendations
+                    Recommandations d'emploi
                   </h3>
                   <ul className="space-y-3 pl-1">
                     {state.jobRecommendations.map((job, index) => (
@@ -114,7 +114,7 @@ export function RecommendationEngine() {
                   </ul>
                   <Button variant="link" asChild className="text-accent hover:text-accent/80">
                     <Link href="/jobs">
-                      View all jobs <ExternalLink className="ml-2 h-4 w-4" />
+                      Voir toutes les offres <ExternalLink className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </div>
@@ -124,7 +124,7 @@ export function RecommendationEngine() {
                 <div className="space-y-4">
                   <h3 className="font-headline text-xl font-semibold text-primary flex items-center">
                     <GraduationCap className="mr-2 h-5 w-5" />
-                    Course Recommendations
+                    Recommandations de cours
                   </h3>
                   <ul className="space-y-3 pl-1">
                     {state.courseRecommendations.map((course, index) => (
@@ -136,7 +136,7 @@ export function RecommendationEngine() {
                   </ul>
                    <Button variant="link" asChild className="text-accent hover:text-accent/80">
                     <Link href="/courses">
-                      View all courses <ExternalLink className="ml-2 h-4 w-4" />
+                      Voir tous les cours <ExternalLink className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </div>

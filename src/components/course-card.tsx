@@ -41,13 +41,13 @@ export function CourseCard({ title, category, duration, certification, provider,
           {certification && (
             <div className="flex items-center gap-2 text-accent font-medium">
               <Award className="h-4 w-4" />
-              <span>Certification included</span>
+              <span>Certification incluse</span>
             </div>
           )}
         </div>
       </CardContent>
       <CardFooter className="p-4 mt-auto">
-        <Button className="w-full">Enroll Now</Button>
+        <Button className="w-full">S'inscrire</Button>
       </CardFooter>
     </Card>
   );

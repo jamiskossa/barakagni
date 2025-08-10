@@ -2,55 +2,55 @@ import { JobCard } from "@/components/job-card";
 
 const jobData = [
   {
-    title: "Licensed Electrician for Residential Projects",
-    category: "Electricity",
-    location: "Conakry, Guinea",
-    type: "Full-time",
+    title: "Électricien Agréé pour Projets Résidentiels",
+    category: "Électricité",
+    location: "Conakry, Guinée",
+    type: "Temps plein",
     company: "Conakry Constructions Co.",
     imageUrl: "https://placehold.co/600x400.png",
     dataAiHint: "electrician working",
   },
   {
-    title: "Plumbing Technician",
-    category: "Plumbing",
-    location: "Dakar, Senegal",
-    type: "Contract",
-    company: "Dakar Water Services",
+    title: "Technicien en Plomberie",
+    category: "Plomberie",
+    location: "Dakar, Sénégal",
+    type: "Contrat",
+    company: "Services des Eaux de Dakar",
     imageUrl: "https://placehold.co/600x400.png",
     dataAiHint: "plumber pipes",
   },
   {
-    title: "HVAC Installation Specialist",
-    category: "HVAC",
+    title: "Spécialiste en Installation de CVC",
+    category: "CVC",
     location: "Abidjan, Côte d'Ivoire",
-    type: "Full-time",
+    type: "Temps plein",
     company: "Ivoire Climate Control",
     imageUrl: "https://placehold.co/600x400.png",
     dataAiHint: "hvac system",
   },
   {
-    title: "Carpenter for Furniture Making",
-    category: "Carpentry",
+    title: "Menuisier pour la Fabrication de Meubles",
+    category: "Menuiserie",
     location: "Lomé, Togo",
-    type: "Part-time",
+    type: "Temps partiel",
     company: "Togo Fine Woods",
     imageUrl: "https://placehold.co/600x400.png",
     dataAiHint: "carpenter workshop",
   },
    {
-    title: "Mason for Building Foundations",
-    category: "Masonry",
+    title: "Maçon pour Fondations de Bâtiments",
+    category: "Maçonnerie",
     location: "Bamako, Mali",
-    type: "Full-time",
-    company: "Mali Building Group",
+    type: "Temps plein",
+    company: "Groupe de Construction du Mali",
     imageUrl: "https://placehold.co/600x400.png",
     dataAiHint: "masonry construction",
   },
   {
-    title: "Automotive Mechanic",
-    category: "Mechanics",
+    title: "Mécanicien Automobile",
+    category: "Mécanique",
     location: "Ouagadougou, Burkina Faso",
-    type: "Full-time",
+    type: "Temps plein",
     company: "Burkina Auto Repair",
     imageUrl: "https://placehold.co/600x400.png",
     dataAiHint: "auto mechanic",
@@ -62,10 +62,10 @@ export default function JobsPage() {
     <div className="container mx-auto px-4 py-8 md:py-16">
       <section className="text-center">
         <h1 className="font-headline text-4xl font-bold tracking-tight text-primary md:text-5xl">
-          Job Opportunities
+          Opportunités d'Emploi
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-foreground/80">
-          Explore the latest job openings for skilled artisans in West Africa.
+          Découvrez les dernières offres d'emploi pour les artisans qualifiés en Afrique de l'Ouest.
         </p>
       </section>
       <section className="mt-12">

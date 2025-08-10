@@ -2,56 +2,56 @@ import { CourseCard } from "@/components/course-card";
 
 const courseData = [
   {
-    title: "Advanced Electrical Wiring",
-    category: "Electricity",
-    duration: "6 Weeks",
+    title: "Câblage Électrique Avancé",
+    category: "Électricité",
+    duration: "6 semaines",
     certification: true,
-    provider: "West Africa Technical Institute",
+    provider: "Institut Technique de l'Afrique de l'Ouest",
     imageUrl: "https://placehold.co/600x400.png",
     dataAiHint: "electrical classroom",
   },
   {
-    title: "Modern Plumbing Techniques",
-    category: "Plumbing",
-    duration: "4 Weeks",
+    title: "Techniques Modernes de Plomberie",
+    category: "Plomberie",
+    duration: "4 semaines",
     certification: true,
-    provider: "Dakar Vocational School",
+    provider: "École Professionnelle de Dakar",
     imageUrl: "https://placehold.co/600x400.png",
     dataAiHint: "plumbing class",
   },
   {
-    title: "Professional Carpentry & Woodworking",
-    category: "Carpentry",
-    duration: "8 Weeks",
+    title: "Menuiserie et Ébénisterie Professionnelles",
+    category: "Menuiserie",
+    duration: "8 semaines",
     certification: true,
-    provider: "Abidjan Craftsmen Guild",
+    provider: "Guilde des Artisans d'Abidjan",
     imageUrl: "https://placehold.co/600x400.png",
     dataAiHint: "woodworking class",
   },
   {
-    title: "Introduction to Solar Panel Installation",
-    category: "Renewable Energy",
-    duration: "3 Weeks",
+    title: "Introduction à l'Installation de Panneaux Solaires",
+    category: "Énergie renouvelable",
+    duration: "3 semaines",
     certification: false,
-    provider: "Sahel Solar Academy",
+    provider: "Académie Solaire du Sahel",
     imageUrl: "https://placehold.co/600x400.png",
     dataAiHint: "solar panels",
   },
    {
-    title: "Small Business Management for Artisans",
-    category: "Business",
-    duration: "5 Weeks",
+    title: "Gestion de Petites Entreprises pour Artisans",
+    category: "Entreprise",
+    duration: "5 semaines",
     certification: true,
-    provider: "ECOWAS Business School",
+    provider: "École de Commerce de la CEDEAO",
     imageUrl: "https://placehold.co/600x400.png",
     dataAiHint: "business meeting",
   },
   {
-    title: "Welding and Metal Fabrication Basics",
-    category: "Welding",
-    duration: "6 Weeks",
+    title: "Bases de la Soudure et de la Fabrication Métallique",
+    category: "Soudure",
+    duration: "6 semaines",
     certification: true,
-    provider: "Lomé Technical College",
+    provider: "Collège Technique de Lomé",
     imageUrl: "https://placehold.co/600x400.png",
     dataAiHint: "welding sparks",
   },
@@ -63,10 +63,10 @@ export default function CoursesPage() {
     <div className="container mx-auto px-4 py-8 md:py-16">
       <section className="text-center">
         <h1 className="font-headline text-4xl font-bold tracking-tight text-primary md:text-5xl">
-          Training Courses
+          Formations
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-foreground/80">
-          Enhance your skills with our curated list of vocational courses.
+          Améliorez vos compétences avec notre liste de cours professionnels.
         </p>
       </section>
       <section className="mt-12">
