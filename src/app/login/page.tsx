@@ -12,9 +12,34 @@ export default function LoginPage() {
 
   const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Simulate successful login
-    localStorage.setItem("isSignedIn", "true");
-    router.push("/profile");
+    // In a real app, you'd fetch user data from your backend.
+    // For this simulation, we'll check localStorage.
+    // This is a simplified simulation. A real login would be more secure.
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const email = (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value;
+    
+    const existingUser = users.find((user: any) => user.email === email);
+
+    if (existingUser) {
+      localStorage.setItem("isSignedIn", "true");
+      localStorage.setItem("currentUser", JSON.stringify(existingUser));
+      router.push("/profile");
+    } else {
+      // For simulation, if user doesn't exist, let's create a basic one
+      // and log them in.
+      const guestUser = {
+        id: `user_${Date.now()}`,
+        firstName: "Utilisateur",
+        lastName: "Invité",
+        email: email,
+      };
+      localStorage.setItem("isSignedIn", "true");
+      localStorage.setItem("currentUser", JSON.stringify(guestUser));
+      // Optionally add the new guest to the users list
+      users.push(guestUser);
+      localStorage.setItem("users", JSON.stringify(users));
+      router.push("/profile");
+    }
   };
 
   return (
@@ -33,6 +58,7 @@ export default function LoginPage() {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="m@example.com"
                   required
@@ -45,7 +71,7 @@ export default function LoginPage() {
                     Mot de passe oublié ?
                   </Link>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" defaultValue="password" required />
               </div>
               <Button type="submit" className="w-full">
                 Se connecter

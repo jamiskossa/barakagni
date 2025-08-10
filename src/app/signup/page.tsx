@@ -18,8 +18,27 @@ export default function SignupPage() {
 
   const handleSignup = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    
+    const firstName = (event.currentTarget.elements.namedItem("first-name") as HTMLInputElement).value;
+    const lastName = (event.currentTarget.elements.namedItem("last-name") as HTMLInputElement).value;
+    const email = (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value;
+    
+    const newUser = {
+      id: `user_${Date.now()}`,
+      firstName,
+      lastName,
+      email,
+    };
+    
+    // In a real app, you would send this to your backend to create a user.
+    // For simulation, we use localStorage.
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    users.push(newUser);
+    localStorage.setItem("users", JSON.stringify(users));
+
     // Simulate successful signup and login
     localStorage.setItem("isSignedIn", "true");
+    localStorage.setItem("currentUser", JSON.stringify(newUser));
     router.push("/profile");
   };
 

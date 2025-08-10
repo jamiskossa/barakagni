@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +23,7 @@ export function Navbar() {
 
   const [isSignedIn, setIsSignedIn] = useState(false);
   const router = useRouter();
+  const pathname = usePathname(); // Get current path to re-check auth state on navigation
 
   useEffect(() => {
     // Check localStorage on mount on the client side
@@ -30,10 +31,11 @@ export function Navbar() {
       const signedIn = localStorage.getItem("isSignedIn") === "true";
       setIsSignedIn(signedIn);
     }
-  }, [router]);
+  }, [pathname]); // Rerun effect when route changes
 
   const handleSignOut = () => {
     localStorage.removeItem("isSignedIn");
+    localStorage.removeItem("currentUser");
     setIsSignedIn(false);
     router.push("/");
     router.refresh();
