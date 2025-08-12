@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -13,10 +14,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Briefcase, GraduationCap, UserCircle, LogOut } from "lucide-react";
+import { Menu, Briefcase, GraduationCap, UserCircle, LogOut, Home } from "lucide-react";
 
 export function Navbar() {
   const navLinks = [
+    { href: "/", label: "Accueil", icon: <Home className="h-4 w-4" /> },
     { href: "/jobs", label: "Emplois", icon: <Briefcase className="h-4 w-4" /> },
     { href: "/courses", label: "Formations", icon: <GraduationCap className="h-4 w-4" /> },
   ];
@@ -47,7 +49,7 @@ export function Navbar() {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-primary"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+            <Image src="/logo.png" alt="BARA Connect Logo" width={32} height={32} />
             <span className="font-bold font-headline sm:inline-block">
               BARA Connect
             </span>
@@ -108,7 +110,7 @@ export function Navbar() {
               <div className="flex flex-col h-full">
                 <div className="flex items-center">
                   <Link href="/" className="mr-6 flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-primary"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                     <Image src="/logo.png" alt="BARA Connect Logo" width={32} height={32} />
                     <span className="font-bold font-headline">BARA Connect</span>
                   </Link>
                 </div>
