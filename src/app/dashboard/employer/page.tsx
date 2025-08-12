@@ -245,6 +245,8 @@ export default function EmployerDashboardPage() {
   const [activeTab, setActiveTab] = useState("applications");
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+  
     if (localStorage.getItem("demoEmployersInitialized") !== "true") {
         const users = JSON.parse(localStorage.getItem("users") || "[]");
         const demoEmployers = [
@@ -294,14 +296,17 @@ export default function EmployerDashboardPage() {
     const applicationsWithData = myApplications.map((app: any) => ({
         ...app,
         applicant: candidateUsers.find((u: Candidate) => u.id === app.applicantId),
-    })).filter(app => app.applicant).reverse();
+    })).filter((app): app is Application => !!app.applicant).reverse();
 
     setApplications(applicationsWithData);
 
-    const stats = myOffers.map(offer => ({
+    const stats = myOffers.map(offer => {
+      const appCount = allApplications.filter((app: any) => app.job.id === offer.id).length;
+      return {
         jobTitle: offer.title,
-        applications: myApplications.filter(app => app.job.id === offer.id).length,
-    }));
+        applications: appCount,
+      }
+    });
     setStatsData(stats);
 
 
@@ -370,7 +375,7 @@ export default function EmployerDashboardPage() {
     const applicationsWithData = myApplications.map((app: any) => ({
         ...app,
         applicant: candidateUsers.find((u: Candidate) => u.id === app.applicantId),
-    })).filter(app => app.applicant).reverse();
+    })).filter((app): app is Application => !!app.applicant).reverse();
 
     setApplications(applicationsWithData);
 
