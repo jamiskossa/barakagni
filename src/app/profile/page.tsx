@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, User, Briefcase, MessageSquare, Edit, Link as LinkIcon } from "lucide-react";
+import { LogOut, User, Briefcase, MessageSquare, Edit, Link as LinkIcon, Download } from "lucide-react";
 
 type User = {
   id: string;
@@ -16,6 +16,8 @@ type User = {
   specialty?: string;
   bio?: string;
   portfolioUrl?: string;
+  cvDataUri?: string;
+  cvFileName?: string;
 };
 
 function ProfileDetails({ user }: { user: User }) {
@@ -36,17 +38,27 @@ function ProfileDetails({ user }: { user: User }) {
             </div>
             {user.portfolioUrl && (
                  <div className="font-medium">
-                    <p className="text-sm text-muted-foreground">Portfolio / CV</p>
+                    <p className="text-sm text-muted-foreground">Portfolio / Site</p>
                     <a href={user.portfolioUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-accent hover:underline">
                         <LinkIcon className="h-4 w-4" />
                         <span>{user.portfolioUrl}</span>
                     </a>
                 </div>
             )}
-             <Button variant="outline" className="mt-4">
-                <Edit className="mr-2 h-4 w-4" />
-                Modifier le profil
-            </Button>
+             <div className="flex flex-wrap gap-4 mt-4">
+                <Button variant="outline">
+                    <Edit className="mr-2 h-4 w-4" />
+                    Modifier le profil
+                </Button>
+                {user.cvDataUri && (
+                    <Button asChild variant="secondary">
+                        <a href={user.cvDataUri} download={user.cvFileName || 'cv.pdf'}>
+                           <Download className="mr-2 h-4 w-4" />
+                           Télécharger le CV
+                        </a>
+                    </Button>
+                )}
+             </div>
         </CardContent>
     </Card>
   )
@@ -72,7 +84,9 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    if (localStorage.getItem("isSignedIn") !== "true") {
+    // This check needs to be in useEffect to avoid hydration mismatch
+    const signedIn = localStorage.getItem("isSignedIn") === "true";
+    if (!signedIn) {
       router.push("/login");
       return;
     }
@@ -90,7 +104,7 @@ export default function ProfilePage() {
     localStorage.removeItem("isSignedIn");
     localStorage.removeItem("currentUser");
     router.push("/");
-    router.refresh();
+    router.refresh(); // Forces a re-render to update the navbar state
   };
 
   if (!user) {
