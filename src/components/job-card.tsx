@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -61,9 +62,12 @@ export function JobCard({ id, employerId, title, category, location, type, compa
   const handleApplicationSubmit = (formData: z.infer<typeof formSchema>) => {
     const cvFile = formData.cvFile?.[0];
     const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
+    const employer = allUsers.find((u: any) => u.id === employerId);
+
 
     const applicationData = {
-        job: { id, employerId, title, category, location, type, company, imageUrl, dataAiHint },
+        job: { id, employerId, title, category, location, type, company, imageUrl: employer?.profilePicture || imageUrl, dataAiHint },
         applicantId: currentUser.id,
         coverLetter: formData.coverLetter,
         cvFileName: cvFile ? cvFile.name : "Using profile CV",
@@ -95,7 +99,7 @@ export function JobCard({ id, employerId, title, category, location, type, compa
               alt={title}
               width={150}
               height={150}
-              className="object-contain"
+              className="object-contain h-full w-auto"
               data-ai-hint={dataAiHint}
             />
           </div>
@@ -132,3 +136,5 @@ export function JobCard({ id, employerId, title, category, location, type, compa
     </Dialog>
   );
 }
+
+    

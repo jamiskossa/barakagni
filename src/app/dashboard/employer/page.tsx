@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ type Employer = {
   sector?: string;
   description?: string;
   website?: string;
+  profilePicture?: string;
 };
 
 type Candidate = {
@@ -254,6 +256,7 @@ export default function EmployerDashboardPage() {
   const [isAddOfferOpen, setIsAddOfferOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("applications");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -360,7 +363,7 @@ export default function EmployerDashboardPage() {
       id: `job_${Date.now()}`,
       employerId: user.id,
       company: user.companyName,
-      imageUrl: "/logo.png",
+      imageUrl: user.profilePicture || "/logo.png",
       dataAiHint: "new job",
       ...data,
     };
@@ -415,6 +418,32 @@ export default function EmployerDashboardPage() {
     });
   };
 
+  const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user) return;
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUri = e.target?.result as string;
+        
+        const updatedUser = { ...user, profilePicture: dataUri };
+        
+        const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
+        const updatedUsers = allUsers.map((u: any) => (u.id === user.id ? updatedUser : u));
+        localStorage.setItem("users", JSON.stringify(updatedUsers));
+        
+        localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+        
+        setUser(updatedUser);
+        
+        toast({
+          title: "Photo de profil mise à jour !",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
 
   if (!user) {
     return <div className="flex items-center justify-center min-h-screen">Chargement du tableau de bord...</div>;
@@ -427,15 +456,22 @@ export default function EmployerDashboardPage() {
                  <Card className="w-full text-center p-6">
                     <div className="relative mx-auto mb-4 w-32 h-32">
                         <Image 
-                            src="/logo.png" 
+                            src={user.profilePicture || "/logo.png"}
                             alt={`${user.companyName} logo`}
                             width={128}
                             height={128}
-                            className="rounded-full border-4 border-primary object-contain"
+                            className="rounded-full border-4 border-primary object-cover w-32 h-32"
                          />
-                         <Button size="icon" className="absolute bottom-0 right-0 rounded-full" variant="secondary" onClick={() => alert("Fonctionnalité de modification de photo à venir.")}>
+                         <Button size="icon" className="absolute bottom-0 right-0 rounded-full" variant="secondary" onClick={() => fileInputRef.current?.click()}>
                             <Edit className="h-4 w-4" />
                          </Button>
+                         <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleProfilePictureChange}
+                            className="hidden"
+                            accept="image/png, image/jpeg, image/gif"
+                         />
                     </div>
                     <CardTitle className="text-2xl font-headline">{user.companyName}</CardTitle>
                     <CardDescription className="break-all">{user.email}</CardDescription>
@@ -542,3 +578,5 @@ export default function EmployerDashboardPage() {
     </div>
   );
 }
+
+    

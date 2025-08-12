@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut, User, Briefcase, MessageSquare, Edit, Link as LinkIcon, Download, GraduationCap, Mail } from "lucide-react";
 import { JobCard, type JobCardProps } from "@/components/job-card";
 import { CourseCard, type CourseCardProps } from "@/components/course-card";
+import { useToast } from "@/hooks/use-toast";
+
 
 type UserProfile = {
   id: string;
@@ -21,6 +24,7 @@ type UserProfile = {
   portfolioUrl?: string;
   cvDataUri?: string;
   cvFileName?: string;
+  profilePicture?: string;
 };
 
 type Message = {
@@ -138,6 +142,8 @@ export default function ProfilePage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [activeTab, setActiveTab] = useState("profile");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const signedIn = localStorage.getItem("isSignedIn") === "true";
@@ -173,6 +179,33 @@ export default function ProfilePage() {
     router.push("/");
     router.refresh(); 
   };
+  
+  const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user) return;
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUri = e.target?.result as string;
+        
+        const updatedUser = { ...user, profilePicture: dataUri };
+        
+        const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
+        const updatedUsers = allUsers.map((u: any) => (u.id === user.id ? updatedUser : u));
+        localStorage.setItem("users", JSON.stringify(updatedUsers));
+        
+        localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+        
+        setUser(updatedUser);
+        
+        toast({
+          title: "Photo de profil mise à jour !",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
 
   if (!user) {
     return <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">Chargement du profil...</div>;
@@ -188,15 +221,22 @@ export default function ProfilePage() {
                  <Card className="w-full text-center p-6">
                     <div className="relative mx-auto mb-4 w-32 h-32">
                         <Image 
-                            src="/logo.png" 
+                            src={user.profilePicture || "/logo.png"}
                             alt="User profile"
                             width={128}
                             height={128}
-                            className="rounded-full border-4 border-primary mx-auto"
+                            className="rounded-full border-4 border-primary mx-auto object-cover w-32 h-32"
                         />
-                         <Button size="icon" className="absolute bottom-0 right-0 rounded-full" variant="secondary" onClick={() => alert("Fonctionnalité de modification de photo à venir.")}>
+                         <Button size="icon" className="absolute bottom-0 right-0 rounded-full" variant="secondary" onClick={() => fileInputRef.current?.click()}>
                             <Edit className="h-4 w-4" />
                          </Button>
+                         <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleProfilePictureChange}
+                            className="hidden"
+                            accept="image/png, image/jpeg, image/gif"
+                         />
                     </div>
                     <CardTitle className="text-2xl font-headline">{user.firstName} {user.lastName}</CardTitle>
                     <CardDescription>{user.email}</CardDescription>
@@ -291,3 +331,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
