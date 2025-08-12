@@ -62,14 +62,15 @@ export function RecommendationEngine() {
   useEffect(() => {
     // This effect runs on the client to load data from localStorage
     if (typeof window !== "undefined") {
-      // Load jobs
-      if (localStorage.getItem("jobOffersInitialized") !== "true") {
-        localStorage.setItem("jobOffers", JSON.stringify(initialJobData));
-        localStorage.setItem("jobOffersInitialized", "true");
+      // Load jobs, and initialize if they don't exist
+      const storedJobsRaw = localStorage.getItem("jobOffers");
+      if (storedJobsRaw) {
+          setAvailableJobs(JSON.parse(storedJobsRaw));
+      } else {
+          localStorage.setItem("jobOffers", JSON.stringify(initialJobData));
+          setAvailableJobs(initialJobData);
       }
-      const storedJobs = JSON.parse(localStorage.getItem("jobOffers") || "[]");
-      setAvailableJobs(storedJobs);
-
+      
       // We can do the same for courses if they become dynamic later
     }
   }, []);
@@ -111,7 +112,6 @@ export function RecommendationEngine() {
             placeholder="Ex: 'Je cherche des missions d'électricité à Conakry' ou 'cours de plomberie de base'"
             className="min-h-[100px] text-base"
             required
-            spellCheck={false}
           />
           <div className="flex justify-end">
             <SubmitButton />
@@ -196,3 +196,5 @@ export function RecommendationEngine() {
     </Card>
   );
 }
+
+    
