@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { WhatsAppWidget } from '@/components/whatsapp-widget';
 
 export const metadata: Metadata = {
-  title: 'BARA Connect',
+  title: 'BARA',
   description: "Votre passerelle vers les opportunités d'emploi et de formation en Guinée.",
 };
 
@@ -33,7 +33,7 @@ function Footer() {
           Application créée par Yattara Ousmane
         </p>
          <p className="text-xs text-muted-foreground mt-2">
-          BARA Connect est une plateforme qui met en relation des artisans qualifiés avec des opportunités d'emploi et de formation en Guinée.
+          BARA est une plateforme qui met en relation des artisans qualifiés avec des opportunités d'emploi et de formation en Guinée.
         </p>
       </div>
     </footer>

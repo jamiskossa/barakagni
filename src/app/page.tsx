@@ -10,7 +10,7 @@ export default function Home() {
           Trouvez Votre Voie en Guinée
         </h1>
         <p className="mx-auto mt-4 max-w-3xl text-lg text-foreground/80 md:text-xl">
-          BARA Connect vous aide à découvrir des opportunités d'emploi et des formations adaptées à vos compétences en Guinée.
+          BARA vous aide à découvrir des opportunités d'emploi et des formations adaptées à vos compétences en Guinée.
           Dites à notre assistant IA ce que vous recherchez pour commencer.
         </p>
       </section>

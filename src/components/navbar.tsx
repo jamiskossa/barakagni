@@ -14,13 +14,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Briefcase, GraduationCap, UserCircle, LogOut, Home } from "lucide-react";
+import { Menu, Briefcase, GraduationCap, UserCircle, LogOut, Home, Info } from "lucide-react";
 
 export function Navbar() {
   const navLinks = [
     { href: "/", label: "Accueil", icon: <Home className="h-4 w-4" /> },
     { href: "/jobs", label: "Emplois", icon: <Briefcase className="h-4 w-4" /> },
     { href: "/courses", label: "Formations", icon: <GraduationCap className="h-4 w-4" /> },
+    { href: "/about", label: "À propos", icon: <Info className="h-4 w-4" /> },
   ];
 
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -49,9 +50,9 @@ export function Navbar() {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Image src="/logo.png" alt="BARA Connect Logo" width={32} height={32} />
+            <Image src="/logo.png" alt="BARA Logo" width={32} height={32} />
             <span className="font-bold font-headline sm:inline-block">
-              BARA Connect
+              BARA
             </span>
           </Link>
           <nav className="hidden gap-6 text-sm md:flex">
@@ -110,8 +111,8 @@ export function Navbar() {
               <div className="flex flex-col h-full">
                 <div className="flex items-center">
                   <Link href="/" className="mr-6 flex items-center space-x-2">
-                     <Image src="/logo.png" alt="BARA Connect Logo" width={32} height={32} />
-                    <span className="font-bold font-headline">BARA Connect</span>
+                     <Image src="/logo.png" alt="BARA Logo" width={32} height={32} />
+                    <span className="font-bold font-headline">BARA</span>
                   </Link>
                 </div>
                 <div className="flex flex-col gap-4 mt-8">
