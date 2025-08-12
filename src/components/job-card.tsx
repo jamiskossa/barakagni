@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { ApplicationForm } from "./application-form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 type JobCardProps = {
   title: string;
@@ -21,51 +24,68 @@ type JobCardProps = {
 export function JobCard({ title, category, location, type, company, imageUrl, dataAiHint }: JobCardProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handleApply = () => {
+  const handleApplyClick = () => {
     if (localStorage.getItem("isSignedIn") !== "true") {
       router.push("/login");
     } else {
-      toast({
-        title: "Candidature envoyée !",
-        description: `Votre candidature pour le poste de ${title} a bien été prise en compte.`,
-        variant: "default",
-      });
+      setIsDialogOpen(true);
     }
   };
 
+  const handleApplicationSubmit = (formData: { coverLetter: string }) => {
+    console.log("Application submitted for:", title, formData);
+    setIsDialogOpen(false);
+    toast({
+      title: "Candidature envoyée !",
+      description: `Votre candidature pour le poste de ${title} a bien été prise en compte.`,
+      variant: "default",
+    });
+  };
+
   return (
-    <Card className="overflow-hidden transition-shadow hover:shadow-lg flex flex-col">
-       <CardHeader className="p-0">
-        <div className="relative h-48 w-full bg-muted flex items-center justify-center">
-          <Image
-            src={imageUrl}
-            alt={title}
-            width={150}
-            height={150}
-            className="object-contain"
-            data-ai-hint={dataAiHint}
-          />
-        </div>
-      </CardHeader>
-      <CardContent className="p-4 flex-grow">
-        <Badge variant="secondary" className="mb-2">{category}</Badge>
-        <CardTitle className="font-headline text-lg mb-2 leading-tight">{title}</CardTitle>
-        <p className="text-sm text-muted-foreground mb-4">{company}</p>
-        <div className="flex flex-col space-y-2 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
-            <span>{location}</span>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Card className="overflow-hidden transition-shadow hover:shadow-lg flex flex-col">
+        <CardHeader className="p-0">
+          <div className="relative h-48 w-full bg-muted flex items-center justify-center">
+            <Image
+              src={imageUrl}
+              alt={title}
+              width={150}
+              height={150}
+              className="object-contain"
+              data-ai-hint={dataAiHint}
+            />
           </div>
-          <div className="flex items-center gap-2">
-            <Briefcase className="h-4 w-4" />
-            <span>{type}</span>
+        </CardHeader>
+        <CardContent className="p-4 flex-grow">
+          <Badge variant="secondary" className="mb-2">{category}</Badge>
+          <CardTitle className="font-headline text-lg mb-2 leading-tight">{title}</CardTitle>
+          <p className="text-sm text-muted-foreground mb-4">{company}</p>
+          <div className="flex flex-col space-y-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              <span>{location}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4" />
+              <span>{type}</span>
+            </div>
           </div>
-        </div>
-      </CardContent>
-      <CardFooter className="p-4 mt-auto">
-        <Button onClick={handleApply} className="w-full" variant="gradient">Postuler</Button>
-      </CardFooter>
-    </Card>
+        </CardContent>
+        <CardFooter className="p-4 mt-auto">
+          <DialogTrigger asChild>
+            <Button onClick={handleApplyClick} className="w-full" variant="gradient">Postuler</Button>
+          </DialogTrigger>
+        </CardFooter>
+      </Card>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Postuler pour : {title}</DialogTitle>
+        </DialogHeader>
+        <ApplicationForm onSubmit={handleApplicationSubmit} />
+      </DialogContent>
+    </Dialog>
   );
 }
