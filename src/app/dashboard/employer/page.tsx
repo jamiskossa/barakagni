@@ -403,7 +403,7 @@ export default function EmployerDashboardPage() {
                          </Button>
                     </div>
                     <CardTitle className="text-2xl font-headline">{user.companyName}</CardTitle>
-                    <CardDescription>{user.email}</CardDescription>
+                    <CardDescription className="break-all">{user.email}</CardDescription>
                      <Button onClick={handleSignOut} className="w-full mt-6" variant="gradient">
                         <LogOut className="mr-2 h-4 w-4" />
                         Se déconnecter
