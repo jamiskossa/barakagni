@@ -2,6 +2,8 @@ import { JobCard } from "@/components/job-card";
 
 const jobData = [
   {
+    id: "job_1",
+    employerId: "emp_1722020000001",
     title: "Électricien Agréé pour Projets Résidentiels",
     category: "Électricité",
     location: "Conakry, Guinée",
@@ -11,6 +13,8 @@ const jobData = [
     dataAiHint: "electrician working",
   },
   {
+    id: "job_2",
+    employerId: "emp_1722020000002",
     title: "Technicien en Plomberie",
     category: "Plomberie",
     location: "Kindia, Guinée",
@@ -20,6 +24,8 @@ const jobData = [
     dataAiHint: "plumber pipes",
   },
   {
+    id: "job_3",
+    employerId: "emp_1722020000001",
     title: "Spécialiste en Installation de CVC",
     category: "CVC",
     location: "Labé, Guinée",
@@ -29,6 +35,8 @@ const jobData = [
     dataAiHint: "hvac system",
   },
   {
+    id: "job_4",
+    employerId: "emp_1722020000002",
     title: "Menuisier pour la Fabrication de Meubles",
     category: "Menuiserie",
     location: "Nzérékoré, Guinée",
@@ -38,6 +46,8 @@ const jobData = [
     dataAiHint: "carpenter workshop",
   },
    {
+    id: "job_5",
+    employerId: "emp_1722020000002",
     title: "Maçon pour Fondations de Bâtiments",
     category: "Maçonnerie",
     location: "Kankan, Guinée",
@@ -47,6 +57,8 @@ const jobData = [
     dataAiHint: "masonry construction",
   },
   {
+    id: "job_6",
+    employerId: "emp_1722020000001",
     title: "Mécanicien Automobile",
     category: "Mécanique",
     location: "Boké, Guinée",
@@ -70,8 +82,8 @@ export default function JobsPage() {
       </section>
       <section className="mt-12">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {jobData.map((job, index) => (
-            <JobCard key={index} {...job} />
+          {jobData.map((job) => (
+            <JobCard key={job.id} {...job} />
           ))}
         </div>
       </section>

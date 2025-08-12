@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { z } from "zod";
 
 export type JobCardProps = {
+  id: string;
+  employerId: string;
   title: string;
   category: string;
   location: string;
@@ -31,7 +33,7 @@ const formSchema = z.object({
 });
 
 
-export function JobCard({ title, category, location, type, company, imageUrl, dataAiHint, hideApplyButton = false }: JobCardProps) {
+export function JobCard({ id, employerId, title, category, location, type, company, imageUrl, dataAiHint, hideApplyButton = false }: JobCardProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -48,7 +50,7 @@ export function JobCard({ title, category, location, type, company, imageUrl, da
     const cvFile = formData.cvFile?.[0];
 
     const applicationData = {
-        job: { title, category, location, type, company, imageUrl, dataAiHint },
+        job: { id, employerId, title, category, location, type, company, imageUrl, dataAiHint },
         coverLetter: formData.coverLetter,
         cvFileName: cvFile ? cvFile.name : "Using profile CV",
         appliedAt: new Date().toISOString(),

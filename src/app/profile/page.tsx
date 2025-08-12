@@ -135,16 +135,19 @@ export default function ProfilePage() {
             return;
         }
       setUser(currentUser);
+      
+      const storedApplications = JSON.parse(localStorage.getItem("jobApplications") || "[]");
+      // In a real app, you would filter based on the current user's ID
+      setApplications(storedApplications.reverse());
+      
+      const storedRegistrations = JSON.parse(localStorage.getItem("courseRegistrations") || "[]");
+      // In a real app, you would filter based on the current user's ID
+      setRegistrations(storedRegistrations.reverse());
+
     } else {
         router.push("/login");
         return;
     }
-
-    const storedApplications = JSON.parse(localStorage.getItem("jobApplications") || "[]");
-    setApplications(storedApplications.reverse());
-    
-    const storedRegistrations = JSON.parse(localStorage.getItem("courseRegistrations") || "[]");
-    setRegistrations(storedRegistrations.reverse());
 
   }, [router]);
 
@@ -163,7 +166,8 @@ export default function ProfilePage() {
     return <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">Chargement du profil...</div>;
   }
 
-  const allSentMessages = [...applications, ...registrations].sort((a, b) => new Date(b.appliedAt || b.registeredAt).getTime() - new Date(a.appliedAt || a.registeredAt).getTime());
+  const allSentMessages = [...applications, ...registrations].sort((a, b) => new Date((b as any).appliedAt || (b as any).registeredAt).getTime() - new Date((a as any).appliedAt || (a as any).registeredAt).getTime());
+
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">

@@ -102,6 +102,26 @@ export default function EmployerDashboardPage() {
   const [applications, setApplications] = useState<Application[]>([]);
 
   useEffect(() => {
+    // This is a one-time operation to ensure our demo employers exist in localStorage
+    if (localStorage.getItem("demoEmployersInitialized") !== "true") {
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+        // Add demo employers if they don't exist
+        const demoEmployers = [
+            { id: 'emp_1722020000001', role: 'employer', companyName: 'Conakry Constructions Co.', email: 'contact@ccc.com', sector: 'BTP', description: 'Leader de la construction en Guinée.' },
+            { id: 'emp_1722020000002', role: 'employer', companyName: 'Services des Eaux de Kindia', email: 'contact@sek.com', sector: 'Services', description: 'Distribution et maintenance des eaux.' }
+        ];
+
+        demoEmployers.forEach(demoEmp => {
+            if (!users.find((u: any) => u.id === demoEmp.id)) {
+                users.push(demoEmp);
+            }
+        });
+
+        localStorage.setItem("users", JSON.stringify(users));
+        localStorage.setItem("demoEmployersInitialized", "true");
+    }
+
     const signedIn = localStorage.getItem("isSignedIn") === "true";
     const currentUserData = localStorage.getItem("currentUser");
     
@@ -121,19 +141,22 @@ export default function EmployerDashboardPage() {
     // In a real app, you would fetch data from your API
     setJobOffers([]);
     
-    // Fetch all applications and simulate finding the applicant's data
     const allApplications = JSON.parse(localStorage.getItem("jobApplications") || "[]");
     const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
-    
-    // In a real app, the applicant's ID would be stored with the application.
-    // Here, we just assign the first found candidate to each application for demonstration.
     const candidateUsers = allUsers.filter((u: any) => u.role === 'candidate');
+
+    // Filter applications for the currently logged-in employer
+    const myApplications = allApplications.filter((app: any) => app.job.employerId === currentUser.id);
     
-    const applicationsWithData = allApplications.map((app: any, index: number) => ({
-        ...app,
-        // This is a rough simulation. A real app would have a userId on the application.
-        applicant: candidateUsers[index % candidateUsers.length] 
-    })).reverse();
+    const applicationsWithData = myApplications.map((app: any, index: number) => {
+        // In a real app, you'd have an applicantId on the application object.
+        // Here we just simulate finding a user. For a better simulation, we should find
+        // the user who made the application, but for now we'll just show some data.
+        return {
+            ...app,
+            applicant: candidateUsers[index % candidateUsers.length] // Just a placeholder for demo
+        }
+    }).reverse();
 
 
     setApplications(applicationsWithData);
@@ -231,4 +254,3 @@ export default function EmployerDashboardPage() {
     </div>
   );
 }
-    
