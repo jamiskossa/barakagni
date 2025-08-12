@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -22,69 +23,83 @@ export default function SignupPage() {
     const firstName = (event.currentTarget.elements.namedItem("first-name") as HTMLInputElement).value;
     const lastName = (event.currentTarget.elements.namedItem("last-name") as HTMLInputElement).value;
     const email = (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value;
+    const specialty = (event.currentTarget.elements.namedItem("specialty") as HTMLInputElement).value;
+    const bio = (event.currentTarget.elements.namedItem("bio") as HTMLTextAreaElement).value;
+    const portfolioUrl = (event.currentTarget.elements.namedItem("portfolio-url") as HTMLInputElement).value;
     
     const newUser = {
       id: `user_${Date.now()}`,
       firstName,
       lastName,
       email,
+      specialty,
+      bio,
+      portfolioUrl,
     };
     
-    // In a real app, you would send this to your backend to create a user.
-    // For simulation, we use localStorage.
     const users = JSON.parse(localStorage.getItem("users") || "[]");
     users.push(newUser);
     localStorage.setItem("users", JSON.stringify(users));
 
-    // Simulate successful signup and login
     localStorage.setItem("isSignedIn", "true");
     localStorage.setItem("currentUser", JSON.stringify(newUser));
     router.push("/profile");
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
-        <Card className="mx-auto max-w-sm">
+    <div className="flex items-center justify-center py-12 px-4">
+        <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
-            <CardTitle className="text-xl font-headline">S'inscrire</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl font-headline">Créez Votre Profil Artisan</CardTitle>
             <CardDescription>
-            Entrez vos informations pour créer un compte
+            Rejoignez BARA et mettez en avant vos compétences.
             </CardDescription>
         </CardHeader>
         <CardContent>
-            <form onSubmit={handleSignup}>
-              <div className="grid gap-4">
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
+            <form onSubmit={handleSignup} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid gap-2">
                     <Label htmlFor="first-name">Prénom</Label>
-                    <Input id="first-name" placeholder="Max" required />
-                    </div>
-                    <div className="grid gap-2">
+                    <Input id="first-name" name="first-name" placeholder="Ousmane" required />
+                  </div>
+                  <div className="grid gap-2">
                     <Label htmlFor="last-name">Nom</Label>
-                    <Input id="last-name" placeholder="Robinson" required />
-                    </div>
-                </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    required
-                    />
-                </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="password">Mot de passe</Label>
-                    <Input id="password" type="password" required />
-                </div>
-                <Button type="submit" className="w-full" variant="gradient">
-                    Créer un compte
-                </Button>
+                    <Input id="last-name" name="last-name" placeholder="Yattara" required />
+                  </div>
               </div>
+              <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="ousmane.yattara@exemple.com"
+                    required
+                  />
+              </div>
+              <div className="grid gap-2">
+                  <Label htmlFor="password">Mot de passe</Label>
+                  <Input id="password" name="password" type="password" required />
+              </div>
+               <div className="grid gap-2">
+                    <Label htmlFor="specialty">Spécialité / Métier</Label>
+                    <Input id="specialty" name="specialty" placeholder="Ex: Électricien, Menuisier" required />
+                </div>
+                 <div className="grid gap-2">
+                    <Label htmlFor="bio">Biographie</Label>
+                    <Textarea id="bio" name="bio" placeholder="Décrivez brièvement votre expérience et vos compétences." required />
+                </div>
+                 <div className="grid gap-2">
+                    <Label htmlFor="portfolio-url">Lien Portfolio / CV (facultatif)</Label>
+                    <Input id="portfolio-url" name="portfolio-url" placeholder="https://mon-portfolio.com" />
+                </div>
+                <Button type="submit" className="w-full" variant="gradient" size="lg">
+                    Créer mon compte
+                </Button>
             </form>
-            <div className="mt-4 text-center text-sm">
+            <div className="mt-6 text-center text-sm">
             Vous avez déjà un compte ?{" "}
-            <Link href="/login" className="underline">
+            <Link href="/login" className="underline font-semibold text-primary">
                 Se connecter
             </Link>
             </div>
