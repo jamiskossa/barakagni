@@ -7,10 +7,10 @@ export default function Home() {
     <div className="container mx-auto px-4 py-8 md:py-16">
       <section className="text-center">
         <h1 className="font-headline text-4xl font-bold tracking-tight text-primary md:text-5xl lg:text-6xl">
-          Trouvez Votre Voie en Afrique de l'Ouest
+          Trouvez Votre Voie en Guinée
         </h1>
         <p className="mx-auto mt-4 max-w-3xl text-lg text-foreground/80 md:text-xl">
-          BARA Connect vous aide à découvrir des opportunités d'emploi et des formations adaptées à vos compétences.
+          BARA Connect vous aide à découvrir des opportunités d'emploi et des formations adaptées à vos compétences en Guinée.
           Dites à notre assistant IA ce que vous recherchez pour commencer.
         </p>
       </section>

@@ -13,45 +13,45 @@ const jobData = [
   {
     title: "Technicien en Plomberie",
     category: "Plomberie",
-    location: "Dakar, Sénégal",
+    location: "Kindia, Guinée",
     type: "Contrat",
-    company: "Services des Eaux de Dakar",
+    company: "Services des Eaux de Kindia",
     imageUrl: "/logo.png",
     dataAiHint: "plumber pipes",
   },
   {
     title: "Spécialiste en Installation de CVC",
     category: "CVC",
-    location: "Abidjan, Côte d'Ivoire",
+    location: "Labé, Guinée",
     type: "Temps plein",
-    company: "Ivoire Climate Control",
+    company: "Fouta Climate Control",
     imageUrl: "/logo.png",
     dataAiHint: "hvac system",
   },
   {
     title: "Menuisier pour la Fabrication de Meubles",
     category: "Menuiserie",
-    location: "Lomé, Togo",
+    location: "Nzérékoré, Guinée",
     type: "Temps partiel",
-    company: "Togo Fine Woods",
+    company: "Forêt Fine Woods",
     imageUrl: "/logo.png",
     dataAiHint: "carpenter workshop",
   },
    {
     title: "Maçon pour Fondations de Bâtiments",
     category: "Maçonnerie",
-    location: "Bamako, Mali",
+    location: "Kankan, Guinée",
     type: "Temps plein",
-    company: "Groupe de Construction du Mali",
+    company: "Groupe de Construction Mandingue",
     imageUrl: "/logo.png",
     dataAiHint: "masonry construction",
   },
   {
     title: "Mécanicien Automobile",
     category: "Mécanique",
-    location: "Ouagadougou, Burkina Faso",
+    location: "Boké, Guinée",
     type: "Temps plein",
-    company: "Burkina Auto Repair",
+    company: "Boké Auto Repair",
     imageUrl: "/logo.png",
     dataAiHint: "auto mechanic",
   },
@@ -65,7 +65,7 @@ export default function JobsPage() {
           Opportunités d'Emploi
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-foreground/80">
-          Découvrez les dernières offres d'emploi pour les artisans qualifiés en Afrique de l'Ouest.
+          Découvrez les dernières offres d'emploi pour les artisans qualifiés en Guinée.
         </p>
       </section>
       <section className="mt-12">

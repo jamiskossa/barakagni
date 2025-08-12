@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
   title: 'BARA Connect',
-  description: "Votre passerelle vers les opportunités d'emploi et de formation en Afrique de l'Ouest.",
+  description: "Votre passerelle vers les opportunités d'emploi et de formation en Guinée.",
 };
 
 function Footer() {
