@@ -6,8 +6,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { LogOut, Building, Briefcase, BarChart, PlusCircle, Edit, Inbox, User, Mail, MessageSquare } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import { LogOut, Building, Briefcase, BarChart, PlusCircle, Edit, Inbox, User, Mail, MessageSquare, Download, Link as LinkIcon } from "lucide-react";
 import { JobCard, type JobCardProps } from "@/components/job-card";
 import { JobOfferForm } from "@/components/job-offer-form";
 import { useToast } from "@/hooks/use-toast";
@@ -122,6 +122,7 @@ function ReplyForm({ onSubmit }: { onSubmit: (data: { content: string }) => void
 function ApplicationReceivedCard({ application, onReply }: { application: Application; onReply: (applicantId: string, content: string) => void }) {
     const { job, coverLetter, appliedAt, applicant, messages = [] } = application;
     const [isReplyOpen, setIsReplyOpen] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     const handleReplySubmit = (data: { content: string }) => {
         if (applicant) {
@@ -133,7 +134,7 @@ function ApplicationReceivedCard({ application, onReply }: { application: Applic
     const employerId = JSON.parse(localStorage.getItem('currentUser') || '{}').id;
 
     return (
-        <Dialog open={isReplyOpen} onOpenChange={setIsReplyOpen}>
+       <Dialog>
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline text-lg md:text-xl">Candidature pour : {job.title}</CardTitle>
@@ -148,8 +149,12 @@ function ApplicationReceivedCard({ application, onReply }: { application: Applic
                             <p className="text-sm text-accent flex items-center gap-2 mt-2 cursor-default" title="L'email est masqué pour la confidentialité">
                                <Mail className="h-4 w-4"/> Email masqué
                             </p>
-                            <p className="text-xs mt-2 italic">{applicant?.bio}</p>
-                        </Card>
+                         </Card>
+                         <DialogTrigger asChild>
+                            <Button variant="outline" onClick={() => setIsProfileOpen(true)}>
+                                <User className="mr-2 h-4 w-4" /> Voir le profil
+                            </Button>
+                        </DialogTrigger>
                     </div>
                     <div className="md:col-span-2 space-y-4">
                         <h4 className="font-semibold text-primary flex items-center"><MessageSquare className="mr-2 h-5 w-5"/> Discussion</h4>
@@ -166,12 +171,10 @@ function ApplicationReceivedCard({ application, onReply }: { application: Applic
                            ))}
                         </div>
                          <div className="flex flex-col sm:flex-row gap-4">
-                            <DialogTrigger asChild>
-                                <Button>
-                                    <MessageSquare className="mr-2 h-4 w-4" />
-                                    Répondre
-                                </Button>
-                            </DialogTrigger>
+                            <Button onClick={() => setIsReplyOpen(true)}>
+                                <MessageSquare className="mr-2 h-4 w-4" />
+                                Répondre
+                            </Button>
                              <Button variant="outline" asChild>
                                 <a href={`https://wa.me/?text=Bonjour%20${applicant?.firstName},%20concernant%20votre%20candidature%20pour%20${job.title}...`} target="_blank" rel="noopener noreferrer">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
@@ -182,13 +185,51 @@ function ApplicationReceivedCard({ application, onReply }: { application: Applic
                     </div>
                 </CardContent>
             </Card>
-             <DialogContent>
+
+            {/* Profile Dialog */}
+            <DialogContent open={isProfileOpen} onOpenChange={setIsProfileOpen}>
+                <DialogHeader>
+                    <DialogTitle>Profil de {applicant?.firstName} {applicant?.lastName}</DialogTitle>
+                    <DialogDescription>{applicant?.specialty}</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                    <div>
+                        <h4 className="font-semibold">Bio</h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{applicant?.bio || "Non renseignée."}</p>
+                    </div>
+                    {applicant?.portfolioUrl && (
+                        <div>
+                            <h4 className="font-semibold">Portfolio</h4>
+                            <a href={applicant.portfolioUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-2">
+                               <LinkIcon className="h-4 w-4" /> {applicant.portfolioUrl}
+                            </a>
+                        </div>
+                    )}
+                    {applicant?.cvDataUri ? (
+                        <Button asChild>
+                            <a href={applicant.cvDataUri} download={applicant.cvFileName || 'cv.pdf'}>
+                               <Download className="mr-2 h-4 w-4" /> Télécharger le CV
+                            </a>
+                        </Button>
+                    ) : (
+                        <p className="text-sm text-muted-foreground italic">Aucun CV n'a été fourni.</p>
+                    )}
+                </div>
+                 <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="outline">Fermer</Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+            
+            {/* Reply Dialog */}
+            <DialogContent open={isReplyOpen} onOpenChange={setIsReplyOpen}>
                 <DialogHeader>
                     <DialogTitle>Répondre à {applicant?.firstName} {applicant?.lastName}</DialogTitle>
                 </DialogHeader>
                 <ReplyForm onSubmit={handleReplySubmit} />
             </DialogContent>
-        </Dialog>
+       </Dialog>
     )
 }
 
@@ -216,7 +257,7 @@ export default function EmployerDashboardPage() {
         });
 
         const demoCandidates = [
-            { id: 'user_kankoujsmom', role: 'candidate', firstName: 'Kankou', lastName: 'Diallo', email: 'kankoujsmom@gmail.com', specialty: 'Développeur Web', bio: 'Passionné par le code.' }
+            { id: 'user_kankoujsmom', role: 'candidate', firstName: 'Kankou', lastName: 'Diallo', email: 'kankoujsmom@gmail.com', specialty: 'Développeur Web', bio: 'Passionné par le code.', cvDataUri: 'simulated_cv.pdf', cvFileName: 'CV_Kankou_Diallo.pdf' }
         ];
         demoCandidates.forEach(demoCand => {
              if (!users.find((u: any) => u.id === demoCand.id)) { users.push(demoCand); }
@@ -252,8 +293,8 @@ export default function EmployerDashboardPage() {
     
     const applicationsWithData = myApplications.map((app: any) => ({
         ...app,
-        applicant: candidateUsers.find((u: Candidate) => u.id === app.applicantId) || candidateUsers[0],
-    })).reverse();
+        applicant: candidateUsers.find((u: Candidate) => u.id === app.applicantId),
+    })).filter(app => app.applicant).reverse();
 
     setApplications(applicationsWithData);
 
@@ -328,8 +369,9 @@ export default function EmployerDashboardPage() {
     const candidateUsers = JSON.parse(localStorage.getItem("users") || "[]").filter((u: any) => u.role === 'candidate');
     const applicationsWithData = myApplications.map((app: any) => ({
         ...app,
-        applicant: candidateUsers.find((u: Candidate) => u.id === app.applicantId) || candidateUsers[0],
-    })).reverse();
+        applicant: candidateUsers.find((u: Candidate) => u.id === app.applicantId),
+    })).filter(app => app.applicant).reverse();
+
     setApplications(applicationsWithData);
 
     toast({
