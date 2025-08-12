@@ -12,6 +12,7 @@ import { CourseCard, type CourseCardProps } from "@/components/course-card";
 
 type User = {
   id: string;
+  role?: 'candidate';
   firstName: string;
   lastName: string;
   email: string;
@@ -126,11 +127,17 @@ export default function ProfilePage() {
       return;
     }
     
-    const currentUser = localStorage.getItem("currentUser");
-    if (currentUser) {
-      setUser(JSON.parse(currentUser));
+    const currentUserData = localStorage.getItem("currentUser");
+    if (currentUserData) {
+      const currentUser = JSON.parse(currentUserData);
+       if (currentUser.role === 'employer') {
+            router.push('/dashboard/employer');
+            return;
+        }
+      setUser(currentUser);
     } else {
         router.push("/login");
+        return;
     }
 
     const storedApplications = JSON.parse(localStorage.getItem("jobApplications") || "[]");

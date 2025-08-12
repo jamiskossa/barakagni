@@ -25,6 +25,7 @@ export function Navbar() {
   ];
 
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [userRole, setUserRole] = useState<'candidate' | 'employer' | null>(null);
   const router = useRouter();
   const pathname = usePathname(); // Get current path to re-check auth state on navigation
 
@@ -33,6 +34,12 @@ export function Navbar() {
     if (typeof window !== "undefined") {
       const signedIn = localStorage.getItem("isSignedIn") === "true";
       setIsSignedIn(signedIn);
+      if (signedIn) {
+          const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+          setUserRole(currentUser.role || 'candidate');
+      } else {
+          setUserRole(null);
+      }
     }
   }, [pathname]); // Rerun effect when route changes
 
@@ -40,9 +47,15 @@ export function Navbar() {
     localStorage.removeItem("isSignedIn");
     localStorage.removeItem("currentUser");
     setIsSignedIn(false);
+    setUserRole(null);
     router.push("/");
     router.refresh();
   };
+
+  const getProfileLink = () => {
+      if (userRole === 'employer') return "/dashboard/employer";
+      return "/profile";
+  }
 
 
   return (
@@ -81,7 +94,7 @@ export function Navbar() {
                   <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/profile">Profil</Link>
+                    <Link href={getProfileLink()}>Tableau de bord</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>Paramètres</DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -129,10 +142,18 @@ export function Navbar() {
                 </div>
                 <div className="mt-auto">
                    {isSignedIn ? (
-                     <Button className="w-full" onClick={handleSignOut}>
-                        <LogOut className="mr-2 h-5 w-5" />
-                        Se déconnecter
-                      </Button>
+                     <div className="space-y-2">
+                        <Button className="w-full" variant="secondary" asChild>
+                           <Link href={getProfileLink()}>
+                            <UserCircle className="mr-2 h-5 w-5" />
+                             Mon tableau de bord
+                           </Link>
+                        </Button>
+                        <Button className="w-full" onClick={handleSignOut}>
+                            <LogOut className="mr-2 h-5 w-5" />
+                            Se déconnecter
+                        </Button>
+                     </div>
                    ) : (
                      <Button className="w-full" asChild>
                        <Link href="/login">

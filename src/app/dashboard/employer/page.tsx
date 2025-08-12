@@ -122,7 +122,7 @@ export default function EmployerDashboardPage() {
                     <TabsContent value="offers" className="mt-6">
                        {jobOffers.length > 0 ? (
                            <div className="space-y-6">
-                                {/* Map through job offers */}
+                               {/* Map through job offers */}
                            </div>
                        ) : (
                             <PlaceholderContent 
