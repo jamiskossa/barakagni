@@ -26,7 +26,7 @@ const formSchema = z.object({
   coverLetter: z.string().min(10, {
     message: "Votre lettre de motivation doit contenir au moins 10 caractères.",
   }),
-   cvFile: z.instanceof(FileList).optional(),
+   cvFile: z.any().optional(),
 });
 
 
