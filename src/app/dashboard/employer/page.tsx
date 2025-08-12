@@ -13,6 +13,7 @@ import { JobOfferForm } from "@/components/job-offer-form";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
+import { ApplicationStats } from "@/components/application-stats";
 
 type Employer = {
   id: string;
@@ -51,6 +52,11 @@ type Application = {
     applicant?: Candidate;
     messages?: Message[];
 };
+
+export type ApplicationStatsData = {
+    jobTitle: string;
+    applications: number;
+}
 
 const jobFormSchema = z.object({
   title: z.string().min(5, { message: "Le titre doit contenir au moins 5 caractères." }),
@@ -193,6 +199,7 @@ export default function EmployerDashboardPage() {
   const [user, setUser] = useState<Employer | null>(null);
   const [jobOffers, setJobOffers] = useState<JobCardProps[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
+  const [statsData, setStatsData] = useState<ApplicationStatsData[]>([]);
   const [isAddOfferOpen, setIsAddOfferOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("applications");
 
@@ -249,6 +256,13 @@ export default function EmployerDashboardPage() {
     })).reverse();
 
     setApplications(applicationsWithData);
+
+    const stats = myOffers.map(offer => ({
+        jobTitle: offer.title,
+        applications: myApplications.filter(app => app.job.id === offer.id).length,
+    }));
+    setStatsData(stats);
+
 
   }, [router]);
 
@@ -418,12 +432,15 @@ export default function EmployerDashboardPage() {
                            )}
                         </TabsContent>
                          <TabsContent value="stats" className="mt-6">
-                            <PlaceholderContent 
-                                title="Statistiques des Candidatures" 
-                                description="Les données sur les vues et les candidatures apparaîtront ici."
+                            {statsData.length > 0 ? (
+                                <ApplicationStats data={statsData} />
+                            ) : (
+                                <PlaceholderContent
+                                title="Statistiques des Candidatures"
+                                description="Les données sur les candidatures apparaîtront ici dès que vous en recevrez."
                                 icon={BarChart}
-                                actionButton={undefined}
-                            />
+                                />
+                            )}
                         </TabsContent>
                     </Tabs>
                      <DialogContent>
