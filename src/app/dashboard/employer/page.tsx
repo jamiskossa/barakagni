@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { LogOut, Building, Briefcase, BarChart, PlusCircle, Edit, Inbox, User, Mail, MessageSquare, Download, Link as LinkIcon } from "lucide-react";
 import { JobCard, type JobCardProps } from "@/components/job-card";
 import { JobOfferForm } from "@/components/job-offer-form";
@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { ApplicationStats } from "@/components/application-stats";
+import { EditEmployerForm } from "@/components/edit-employer-form";
 
 type Employer = {
   id: string;
@@ -49,6 +50,7 @@ type Application = {
     job: JobCardProps;
     coverLetter: string;
     appliedAt: string;
+
     applicant?: Candidate;
     messages?: Message[];
 };
@@ -65,6 +67,14 @@ const jobFormSchema = z.object({
   type: z.string().min(2, { message: "Le type de contrat est requis." }),
   description: z.string().min(10, { message: "La description doit contenir au moins 10 caractères." }),
 });
+
+const editProfileSchema = z.object({
+  companyName: z.string().min(2, "Le nom de l'entreprise doit contenir au moins 2 caractères."),
+  sector: z.string().min(2, "Le secteur d'activité est requis."),
+  description: z.string().min(10, "La description doit contenir au moins 10 caractères."),
+  website: z.string().url("Veuillez entrer une URL valide.").optional().or(z.literal('')),
+});
+
 
 const messageFormSchema = z.object({
   content: z.string().min(10, { message: "Votre message doit contenir au moins 10 caractères." }),
@@ -242,6 +252,7 @@ export default function EmployerDashboardPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [statsData, setStatsData] = useState<ApplicationStatsData[]>([]);
   const [isAddOfferOpen, setIsAddOfferOpen] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("applications");
 
   useEffect(() => {
@@ -319,9 +330,28 @@ export default function EmployerDashboardPage() {
     router.refresh();
   };
   
-  const handleEditProfile = () => {
-    alert("La modification du profil employeur sera bientôt disponible !");
-  }
+  const handleEditProfileSubmit = (data: z.infer<typeof editProfileSchema>) => {
+    if (!user) return;
+    
+    const updatedUser = { ...user, ...data };
+    
+    // Update in the 'users' list in localStorage
+    const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
+    const updatedUsers = allUsers.map((u: any) => (u.id === user.id ? updatedUser : u));
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
+    
+    // Update 'currentUser' in localStorage
+    localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+    
+    // Update state
+    setUser(updatedUser);
+    
+    setIsEditProfileOpen(false);
+    toast({
+      title: "Profil mis à jour",
+      description: "Vos informations ont été modifiées avec succès.",
+    });
+  };
 
   const handleAddOfferSubmit = (data: z.infer<typeof jobFormSchema>) => {
     if (!user) return;
@@ -424,10 +454,20 @@ export default function EmployerDashboardPage() {
                          {user.website && <a href={user.website} target="_blank" rel="noreferrer" className="text-accent hover:underline break-all">{user.website}</a>}
                     </CardContent>
                      <CardFooter>
-                        <Button variant="outline" className="w-full" onClick={handleEditProfile}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Modifier les infos
-                        </Button>
+                        <Dialog open={isEditProfileOpen} onOpenChange={setIsEditProfileOpen}>
+                           <DialogTrigger asChild>
+                               <Button variant="outline" className="w-full">
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Modifier les infos
+                                </Button>
+                           </DialogTrigger>
+                           <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Modifier les informations de l'entreprise</DialogTitle>
+                                </DialogHeader>
+                                <EditEmployerForm user={user} onSubmit={handleEditProfileSubmit} />
+                           </DialogContent>
+                        </Dialog>
                     </CardFooter>
                  </Card>
             </aside>
