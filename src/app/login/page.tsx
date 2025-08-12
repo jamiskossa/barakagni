@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,13 +18,22 @@ export default function LoginPage() {
     // This is a simplified simulation. A real login would be more secure.
     const users = JSON.parse(localStorage.getItem("users") || "[]");
     const email = (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value;
+    const role = (event.currentTarget.elements.namedItem("role") as HTMLInputElement).value;
     
     const existingUser = users.find((user: any) => user.email === email);
 
     if (existingUser) {
       localStorage.setItem("isSignedIn", "true");
       localStorage.setItem("currentUser", JSON.stringify(existingUser));
-      router.push("/profile");
+      // In a real app, you'd route based on the 'role'
+      if (role === 'employer') {
+        // Redirect to an employer dashboard (to be created)
+        // For now, we'll just log it and go to profile
+        console.log("Logging in as an employer");
+        router.push("/profile");
+      } else {
+        router.push("/profile");
+      }
     } else {
       // For simulation, if user doesn't exist, let's create a basic one
       // and log them in.
@@ -48,7 +58,7 @@ export default function LoginPage() {
         <CardHeader>
           <CardTitle className="text-2xl font-headline">Connexion</CardTitle>
           <CardDescription>
-            Entrez votre email ci-dessous pour vous connecter à votre compte
+            Entrez vos informations pour vous connecter.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -72,6 +82,19 @@ export default function LoginPage() {
                   </Link>
                 </div>
                 <Input id="password" type="password" defaultValue="password" required />
+              </div>
+               <div className="grid gap-2">
+                <Label>Je suis un</Label>
+                <RadioGroup defaultValue="candidate" name="role" className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="candidate" id="r1" />
+                    <Label htmlFor="r1">Candidat</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="employer" id="r2" />
+                    <Label htmlFor="r2">Employeur</Label>
+                  </div>
+                </RadioGroup>
               </div>
               <Button type="submit" className="w-full" variant="gradient">
                 Se connecter
