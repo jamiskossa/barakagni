@@ -26,6 +26,7 @@ const formSchema = z.object({
   motivation: z.string().min(10, {
     message: "Votre message de motivation doit contenir au moins 10 caractères.",
   }),
+  diplomaFile: z.any().optional(),
 });
 
 export function CourseCard({ title, category, duration, certification, provider, imageUrl, dataAiHint }: CourseCardProps) {
@@ -42,8 +43,10 @@ export function CourseCard({ title, category, duration, certification, provider,
   };
   
   const handleRegistrationSubmit = (formData: z.infer<typeof formSchema>) => {
+    const diplomaFile = formData.diplomaFile?.[0];
     console.log("Registration submitted for:", title, {
         motivation: formData.motivation,
+        diplomaFileName: diplomaFile ? diplomaFile.name : "No file attached",
     });
     
     setIsDialogOpen(false);
