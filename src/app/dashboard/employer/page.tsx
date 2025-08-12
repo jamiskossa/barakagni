@@ -12,7 +12,7 @@ import { JobCard, type JobCardProps } from "@/components/job-card";
 import { JobOfferForm } from "@/components/job-offer-form";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
-
+import { Textarea } from "@/components/ui/textarea";
 
 type Employer = {
   id: string;
@@ -37,21 +37,33 @@ type Candidate = {
   cvFileName?: string;
 };
 
+type Message = {
+    senderId: string;
+    receiverId: string;
+    content: string;
+    sentAt: string;
+};
+
 type Application = {
     job: JobCardProps;
     coverLetter: string;
     appliedAt: string;
-    // We'll simulate finding the user who applied
     applicant?: Candidate;
+    messages?: Message[];
 };
 
-const formSchema = z.object({
+const jobFormSchema = z.object({
   title: z.string().min(5, { message: "Le titre doit contenir au moins 5 caractères." }),
   category: z.string().min(2, { message: "La catégorie est requise." }),
   location: z.string().min(2, { message: "Le lieu est requis." }),
   type: z.string().min(2, { message: "Le type de contrat est requis." }),
   description: z.string().min(10, { message: "La description doit contenir au moins 10 caractères." }),
 });
+
+const messageFormSchema = z.object({
+  content: z.string().min(10, { message: "Votre message doit contenir au moins 10 caractères." }),
+});
+
 
 function PlaceholderContent({ title, description, icon: Icon, actionButton }: { title: string; description: string; icon: React.ElementType, actionButton?: React.ReactNode }) {
     return (
@@ -68,57 +80,108 @@ function PlaceholderContent({ title, description, icon: Icon, actionButton }: { 
     );
 }
 
-function ApplicationReceivedCard({ application }: { application: Application }) {
-    const { job, coverLetter, appliedAt, applicant } = application;
+function ReplyForm({ onSubmit }: { onSubmit: (data: { content: string }) => void }) {
+    const [content, setContent] = useState('');
     const { toast } = useToast();
 
-    const handleReply = () => {
-        // In a real app, this would open a messaging interface.
-        // Here, we just show a toast as a simulation.
-        toast({
-            title: "Réponse au candidat",
-            description: `Une interface de messagerie s'ouvrirait pour répondre à ${applicant?.firstName} ${applicant?.lastName}.`,
-        });
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const result = messageFormSchema.safeParse({ content });
+        if (result.success) {
+            onSubmit(result.data);
+        } else {
+            toast({
+                variant: 'destructive',
+                title: 'Erreur',
+                description: result.error.errors[0].message,
+            });
+        }
     };
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline text-xl">Candidature pour : {job.title}</CardTitle>
-                <CardDescription>Reçue le {new Date(appliedAt).toLocaleDateString('fr-FR')}</CardDescription>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-1 space-y-4">
-                    <h4 className="font-semibold text-primary flex items-center"><User className="mr-2 h-5 w-5"/> Candidat</h4>
-                     <Card className="p-4 bg-muted/50">
-                        <p className="font-bold">{applicant?.firstName} {applicant?.lastName}</p>
-                        <p className="text-sm text-muted-foreground">{applicant?.specialty}</p>
-                        <p className="text-sm text-accent flex items-center gap-2 mt-2 cursor-default" title="L'email est masqué pour la confidentialité">
-                           <Mail className="h-4 w-4"/> Email masqué
-                        </p>
-                        <p className="text-xs mt-2 italic">{applicant?.bio}</p>
-                    </Card>
-                </div>
-                <div className="md:col-span-2 space-y-4">
-                    <h4 className="font-semibold text-primary flex items-center"><MessageSquare className="mr-2 h-5 w-5"/> Lettre de motivation</h4>
-                    <div className="p-4 border rounded-md whitespace-pre-wrap bg-background text-sm max-h-48 overflow-y-auto">
-                        {coverLetter}
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <Textarea 
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Écrivez votre réponse ici..."
+                className="min-h-[120px]"
+            />
+            <Button type="submit" className="w-full">Envoyer la réponse</Button>
+        </form>
+    );
+}
+
+
+function ApplicationReceivedCard({ application, onReply }: { application: Application; onReply: (applicantId: string, content: string) => void }) {
+    const { job, coverLetter, appliedAt, applicant, messages = [] } = application;
+    const [isReplyOpen, setIsReplyOpen] = useState(false);
+
+    const handleReplySubmit = (data: { content: string }) => {
+        if (applicant) {
+            onReply(applicant.id, data.content);
+            setIsReplyOpen(false);
+        }
+    };
+    
+    const employerId = JSON.parse(localStorage.getItem('currentUser') || '{}').id;
+
+    return (
+        <Dialog open={isReplyOpen} onOpenChange={setIsReplyOpen}>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-lg md:text-xl">Candidature pour : {job.title}</CardTitle>
+                    <CardDescription>Reçue le {new Date(appliedAt).toLocaleDateString('fr-FR')}</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="md:col-span-1 space-y-4">
+                        <h4 className="font-semibold text-primary flex items-center"><User className="mr-2 h-5 w-5"/> Candidat</h4>
+                         <Card className="p-4 bg-muted/50">
+                            <p className="font-bold">{applicant?.firstName} {applicant?.lastName}</p>
+                            <p className="text-sm text-muted-foreground">{applicant?.specialty}</p>
+                            <p className="text-sm text-accent flex items-center gap-2 mt-2 cursor-default" title="L'email est masqué pour la confidentialité">
+                               <Mail className="h-4 w-4"/> Email masqué
+                            </p>
+                            <p className="text-xs mt-2 italic">{applicant?.bio}</p>
+                        </Card>
                     </div>
-                     <div className="flex gap-4">
-                        <Button onClick={handleReply}>
-                            <MessageSquare className="mr-2 h-4 w-4" />
-                            Répondre au candidat
-                        </Button>
-                         <Button variant="outline" asChild>
-                            <a href={`https://wa.me/?text=Bonjour%20${applicant?.firstName},%20concernant%20votre%20candidature%20pour%20${job.title}...`} target="_blank" rel="noopener noreferrer">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                                Contacter sur WhatsApp
-                            </a>
-                        </Button>
+                    <div className="md:col-span-2 space-y-4">
+                        <h4 className="font-semibold text-primary flex items-center"><MessageSquare className="mr-2 h-5 w-5"/> Discussion</h4>
+                        <div className="p-4 border rounded-md whitespace-pre-wrap bg-background text-sm max-h-48 overflow-y-auto space-y-4">
+                           <div className="text-muted-foreground">
+                                <p className="font-bold">Lettre de motivation :</p>
+                                <p>{coverLetter}</p>
+                           </div>
+                           {messages.map((msg, index) => (
+                               <div key={index} className={`p-2 rounded-lg ${msg.senderId === employerId ? 'bg-primary/10 text-right' : 'bg-muted'}`}>
+                                   <p className="text-xs text-muted-foreground">{msg.senderId === employerId ? 'Vous' : `${applicant?.firstName}`}, le {new Date(msg.sentAt).toLocaleDateString('fr-FR')}</p>
+                                   <p>{msg.content}</p>
+                               </div>
+                           ))}
+                        </div>
+                         <div className="flex flex-col sm:flex-row gap-4">
+                            <DialogTrigger asChild>
+                                <Button>
+                                    <MessageSquare className="mr-2 h-4 w-4" />
+                                    Répondre au candidat
+                                </Button>
+                            </DialogTrigger>
+                             <Button variant="outline" asChild>
+                                <a href={`https://wa.me/?text=Bonjour%20${applicant?.firstName},%20concernant%20votre%20candidature%20pour%20${job.title}...`} target="_blank" rel="noopener noreferrer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                                    Contacter sur WhatsApp
+                                </a>
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            </CardContent>
-        </Card>
+                </CardContent>
+            </Card>
+             <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Répondre à {applicant?.firstName} {applicant?.lastName}</DialogTitle>
+                </DialogHeader>
+                <ReplyForm onSubmit={handleReplySubmit} />
+            </DialogContent>
+        </Dialog>
     )
 }
 
@@ -130,24 +193,27 @@ export default function EmployerDashboardPage() {
   const [jobOffers, setJobOffers] = useState<JobCardProps[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [isAddOfferOpen, setIsAddOfferOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("applications");
 
   useEffect(() => {
-    // This is a one-time operation to ensure our demo employers exist in localStorage
     if (localStorage.getItem("demoEmployersInitialized") !== "true") {
         const users = JSON.parse(localStorage.getItem("users") || "[]");
-
-        // Add demo employers if they don't exist
         const demoEmployers = [
             { id: 'emp_1722020000001', role: 'employer', companyName: 'Conakry Constructions Co.', email: 'contact@ccc.com', sector: 'BTP', description: 'Leader de la construction en Guinée.' },
-            { id: 'emp_1722020000002', role: 'employer', companyName: 'Services des Eaux de Kindia', email: 'contact@sek.com', sector: 'Services', description: 'Distribution et maintenance des eaux.' }
+            { id: 'emp_1722020000002', role: 'employer', companyName: 'Services des Eaux de Kindia', email: 'contact@sek.com', sector: 'Services', description: 'Distribution et maintenance des eaux.' },
+            { id: 'emp_ousmaneyat2003', role: 'employer', companyName: 'Yattara Corp', email: 'ousmaneyat2003@yahoo.fr', sector: 'Tech', description: 'Solutions innovantes.' }
         ];
-
         demoEmployers.forEach(demoEmp => {
-            if (!users.find((u: any) => u.id === demoEmp.id)) {
-                users.push(demoEmp);
-            }
+            if (!users.find((u: any) => u.id === demoEmp.id)) { users.push(demoEmp); }
         });
 
+        const demoCandidates = [
+            { id: 'user_kankoujsmom', role: 'candidate', firstName: 'Kankou', lastName: 'Diallo', email: 'kankoujsmom@gmail.com', specialty: 'Développeur Web', bio: 'Passionné par le code.' }
+        ];
+        demoCandidates.forEach(demoCand => {
+             if (!users.find((u: any) => u.id === demoCand.id)) { users.push(demoCand); }
+        });
+        
         localStorage.setItem("users", JSON.stringify(users));
         localStorage.setItem("demoEmployersInitialized", "true");
     }
@@ -156,19 +222,16 @@ export default function EmployerDashboardPage() {
     const currentUserData = localStorage.getItem("currentUser");
     
     if (!signedIn || !currentUserData) {
-      router.push("/login");
-      return;
+      router.push("/login"); return;
     }
     
     const currentUser = JSON.parse(currentUserData);
     if (currentUser.role !== 'employer') {
-        router.push("/profile");
-        return;
+        router.push("/profile"); return;
     }
     
     setUser(currentUser);
     
-    // In a real app, you would fetch data from your API
     const allOffers = JSON.parse(localStorage.getItem("jobOffers") || "[]");
     const myOffers = allOffers.filter((offer: any) => offer.employerId === currentUser.id);
     setJobOffers(myOffers.reverse());
@@ -177,19 +240,12 @@ export default function EmployerDashboardPage() {
     const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
     const candidateUsers = allUsers.filter((u: any) => u.role === 'candidate');
 
-    // Filter applications for the currently logged-in employer
     const myApplications = allApplications.filter((app: any) => app.job.employerId === currentUser.id);
     
-    const applicationsWithData = myApplications.map((app: any) => {
-        // In a real app, you'd have an applicantId on the application object.
-        // Here we simulate finding a user.
-        return {
-            ...app,
-            // Find the applicant data, this is still a simulation
-            applicant: candidateUsers.find((u: Candidate) => u.id === app.applicantId) || candidateUsers[0]
-        }
-    }).reverse();
-
+    const applicationsWithData = myApplications.map((app: any) => ({
+        ...app,
+        applicant: candidateUsers.find((u: Candidate) => u.id === app.applicantId) || candidateUsers[0],
+    })).reverse();
 
     setApplications(applicationsWithData);
 
@@ -203,11 +259,10 @@ export default function EmployerDashboardPage() {
   };
   
   const handleEditProfile = () => {
-    // In a real app, this would open a profile editing form.
     alert("La modification du profil employeur sera bientôt disponible !");
   }
 
-  const handleAddOfferSubmit = (data: z.infer<typeof formSchema>) => {
+  const handleAddOfferSubmit = (data: z.infer<typeof jobFormSchema>) => {
     if (!user) return;
     
     const newOffer: JobCardProps = {
@@ -230,6 +285,44 @@ export default function EmployerDashboardPage() {
       description: "Votre nouvelle offre est maintenant visible pour les candidats.",
     });
   };
+
+  const handleReplyToCandidate = (applicantId: string, content: string) => {
+    if (!user) return;
+    const newMessage: Message = {
+        senderId: user.id,
+        receiverId: applicantId,
+        content: content,
+        sentAt: new Date().toISOString(),
+    };
+
+    const allApplications = JSON.parse(localStorage.getItem("jobApplications") || '[]');
+    // Find the relevant application and add the message
+    const updatedApplications = allApplications.map((app: any) => {
+        if (app.applicantId === applicantId && app.job.employerId === user.id) {
+            const messages = app.messages || [];
+            messages.push(newMessage);
+            return { ...app, messages };
+        }
+        return app;
+    });
+
+    localStorage.setItem('jobApplications', JSON.stringify(updatedApplications));
+    
+    // Update component state to re-render
+    const myApplications = updatedApplications.filter((app: any) => app.job.employerId === user.id);
+    const candidateUsers = JSON.parse(localStorage.getItem("users") || "[]").filter((u: any) => u.role === 'candidate');
+    const applicationsWithData = myApplications.map((app: any) => ({
+        ...app,
+        applicant: candidateUsers.find((u: Candidate) => u.id === app.applicantId) || candidateUsers[0],
+    })).reverse();
+    setApplications(applicationsWithData);
+
+    toast({
+        title: "Message envoyé !",
+        description: "Votre réponse a été envoyée au candidat.",
+    });
+  };
+
 
   if (!user) {
     return <div className="flex items-center justify-center min-h-screen">Chargement du tableau de bord...</div>;
@@ -278,17 +371,19 @@ export default function EmployerDashboardPage() {
             </aside>
             <main className="md:col-span-3">
                  <Dialog open={isAddOfferOpen} onOpenChange={setIsAddOfferOpen}>
-                    <Tabs defaultValue="applications" className="w-full">
-                        <TabsList className="grid w-full grid-cols-3">
-                            <TabsTrigger value="offers"><Briefcase className="mr-2 h-4 w-4" />Offres d'Emploi</TabsTrigger>
-                            <TabsTrigger value="applications"><Inbox className="mr-2 h-4 w-4" />Candidatures</TabsTrigger>
-                            <TabsTrigger value="stats"><BarChart className="mr-2 h-4 w-4" />Statistiques</TabsTrigger>
-                        </TabsList>
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                        <div className="overflow-x-auto">
+                            <TabsList className="grid w-full grid-cols-3 min-w-[320px]">
+                                <TabsTrigger value="offers"><Briefcase className="mr-2 h-4 w-4" />Offres</TabsTrigger>
+                                <TabsTrigger value="applications"><Inbox className="mr-2 h-4 w-4" />Candidatures</TabsTrigger>
+                                <TabsTrigger value="stats"><BarChart className="mr-2 h-4 w-4" />Stats</TabsTrigger>
+                            </TabsList>
+                        </div>
                         <TabsContent value="offers" className="mt-6">
-                           <div className="flex justify-between items-center mb-6">
+                           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                              <h2 className="text-2xl font-headline text-primary">Mes Offres Publiées</h2>
                              <DialogTrigger asChild>
-                                <Button variant="gradient">
+                                <Button variant="gradient" className="w-full sm:w-auto">
                                     <PlusCircle className="mr-2 h-4 w-4" />
                                     Ajouter une offre
                                 </Button>
@@ -310,7 +405,7 @@ export default function EmployerDashboardPage() {
                            {applications.length > 0 ? (
                                <div className="space-y-6">
                                    {applications.map((app, index) => (
-                                       <ApplicationReceivedCard key={index} application={app} />
+                                       <ApplicationReceivedCard key={index} application={app} onReply={handleReplyToCandidate} />
                                    ))}
                                </div>
                            ) : (

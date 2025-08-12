@@ -10,7 +10,7 @@ import { LogOut, User, Briefcase, MessageSquare, Edit, Link as LinkIcon, Downloa
 import { JobCard, type JobCardProps } from "@/components/job-card";
 import { CourseCard, type CourseCardProps } from "@/components/course-card";
 
-type User = {
+type UserProfile = {
   id: string;
   role?: 'candidate';
   firstName: string;
@@ -23,10 +23,18 @@ type User = {
   cvFileName?: string;
 };
 
+type Message = {
+    senderId: string;
+    receiverId: string;
+    content: string;
+    sentAt: string;
+};
+
 type Application = {
     job: JobCardProps;
     coverLetter: string;
     appliedAt: string;
+    messages?: Message[];
 };
 
 type Registration = {
@@ -35,7 +43,7 @@ type Registration = {
     registeredAt: string;
 };
 
-function ProfileDetails({ user }: { user: User }) {
+function ProfileDetails({ user }: { user: UserProfile }) {
   return (
      <Card>
         <CardHeader>
@@ -61,7 +69,7 @@ function ProfileDetails({ user }: { user: User }) {
                 </div>
             )}
              <div className="flex flex-wrap gap-4 mt-4">
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => alert("Fonctionnalité à venir.")}>
                     <Edit className="mr-2 h-4 w-4" />
                     Modifier le profil
                 </Button>
@@ -93,7 +101,7 @@ function PlaceholderContent({ title, description, icon: Icon }: { title: string;
     );
 }
 
-function SentMessageCard({ to, subject, message, date }: { to: string, subject: string, message: string, date: string }) {
+function SentMessageCard({ from, to, subject, message, date, messages = [], currentUserId }: { from: string, to: string, subject: string, message: string, date: string, messages: Message[], currentUserId: string }) {
     return (
         <Card>
             <CardHeader>
@@ -102,11 +110,22 @@ function SentMessageCard({ to, subject, message, date }: { to: string, subject: 
                     {subject}
                 </CardTitle>
                 <CardDescription>
-                    Envoyé à : {to} - {new Date(date).toLocaleDateString("fr-FR")}
+                    Conversation avec : {to} - Démarrée le {new Date(date).toLocaleDateString("fr-FR")}
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <p className="whitespace-pre-wrap p-4 bg-muted/50 rounded-md text-sm">{message}</p>
+                <div className="space-y-4 p-4 bg-muted/50 rounded-md text-sm max-h-60 overflow-y-auto">
+                    <div className="text-muted-foreground">
+                        <p className="font-bold">Votre message initial :</p>
+                        <p className="whitespace-pre-wrap">{message}</p>
+                    </div>
+                     {messages.map((msg, index) => (
+                        <div key={index} className={`p-2 rounded-lg ${msg.senderId === currentUserId ? 'bg-primary/10 text-right' : 'bg-background'}`}>
+                            <p className="text-xs text-muted-foreground">{msg.senderId === currentUserId ? 'Vous' : from}, le {new Date(msg.sentAt).toLocaleDateString('fr-FR')}</p>
+                            <p>{msg.content}</p>
+                        </div>
+                    ))}
+                </div>
             </CardContent>
         </Card>
     );
@@ -115,24 +134,22 @@ function SentMessageCard({ to, subject, message, date }: { to: string, subject: 
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [activeTab, setActiveTab] = useState("profile");
 
   useEffect(() => {
-    // This check needs to be in useEffect to avoid hydration mismatch
     const signedIn = localStorage.getItem("isSignedIn") === "true";
     if (!signedIn) {
-      router.push("/login");
-      return;
+      router.push("/login"); return;
     }
     
     const currentUserData = localStorage.getItem("currentUser");
     if (currentUserData) {
       const currentUser = JSON.parse(currentUserData);
        if (currentUser.role === 'employer') {
-            router.push('/dashboard/employer');
-            return;
+            router.push('/dashboard/employer'); return;
         }
       setUser(currentUser);
       
@@ -145,8 +162,7 @@ export default function ProfilePage() {
       setRegistrations(myRegistrations.reverse());
 
     } else {
-        router.push("/login");
-        return;
+        router.push("/login"); return;
     }
 
   }, [router]);
@@ -154,12 +170,8 @@ export default function ProfilePage() {
   const handleSignOut = () => {
     localStorage.removeItem("isSignedIn");
     localStorage.removeItem("currentUser");
-    // Also clear applications for privacy
-    // In a real app, this would be handled by server-side sessions
-    localStorage.removeItem("jobApplications");
-    localStorage.removeItem("courseRegistrations");
     router.push("/");
-    router.refresh(); // Forces a re-render to update the navbar state
+    router.refresh(); 
   };
 
   if (!user) {
@@ -195,13 +207,15 @@ export default function ProfilePage() {
                 </Card>
             </aside>
             <main className="md:col-span-3">
-                 <Tabs defaultValue="profile" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="profile"><User className="mr-2 h-4 w-4" />Profil</TabsTrigger>
-                        <TabsTrigger value="applications"><Briefcase className="mr-2 h-4 w-4" />Candidatures</TabsTrigger>
-                        <TabsTrigger value="courses"><GraduationCap className="mr-2 h-4 w-4" />Formations</TabsTrigger>
-                        <TabsTrigger value="messages"><MessageSquare className="mr-2 h-4 w-4" />Messages</TabsTrigger>
-                    </TabsList>
+                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                     <div className="overflow-x-auto">
+                        <TabsList className="grid w-full grid-cols-4 min-w-[400px]">
+                            <TabsTrigger value="profile"><User className="mr-2 h-4 w-4" />Profil</TabsTrigger>
+                            <TabsTrigger value="applications"><Briefcase className="mr-2 h-4 w-4" />Candidatures</TabsTrigger>
+                            <TabsTrigger value="courses"><GraduationCap className="mr-2 h-4 w-4" />Formations</TabsTrigger>
+                            <TabsTrigger value="messages"><MessageSquare className="mr-2 h-4 w-4" />Messages</TabsTrigger>
+                        </TabsList>
+                    </div>
                     <TabsContent value="profile" className="mt-6">
                         <ProfileDetails user={user} />
                     </TabsContent>
@@ -241,26 +255,32 @@ export default function ProfilePage() {
                                 {applications.map((app, index) => (
                                     <SentMessageCard 
                                         key={`app-msg-${index}`}
+                                        from={`${user.firstName} ${user.lastName}`}
                                         to={app.job.company}
                                         subject={`Candidature: ${app.job.title}`}
                                         message={app.coverLetter}
                                         date={app.appliedAt}
+                                        messages={app.messages || []}
+                                        currentUserId={user.id}
                                     />
                                 ))}
                                 {registrations.map((reg, index) => (
                                     <SentMessageCard 
                                         key={`reg-msg-${index}`}
+                                        from={`${user.firstName} ${user.lastName}`}
                                         to={reg.course.provider}
                                         subject={`Inscription: ${reg.course.title}`}
                                         message={reg.motivation}
                                         date={reg.registeredAt}
+                                        messages={[]} // Assuming no messaging for courses for now
+                                        currentUserId={user.id}
                                     />
                                 ))}
                             </div>
                         ) : (
                             <PlaceholderContent 
                                 title="Mes Messages Envoyés" 
-                                description="Vos lettres de motivation et messages d'inscription apparaîtront ici."
+                                description="Vos lettres de motivation et réponses apparaîtront ici."
                                 icon={MessageSquare}
                             />
                         )}
