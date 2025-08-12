@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { JobCard, type JobCardProps } from "@/components/job-card";
 
+// Données initiales pour peupler le site la première fois.
 const initialJobData = [
   {
     id: "job_1",
@@ -73,18 +74,19 @@ const initialJobData = [
 ];
 
 export default function JobsPage() {
-  const [jobData, setJobData] = useState<JobCardProps[]>(initialJobData);
+  const [jobData, setJobData] = useState<JobCardProps[]>([]);
 
   useEffect(() => {
-    // In a real app, this would be a single API call.
-    // Here, we combine initial data with data from localStorage.
+    // Cette opération garantit que les données de démonstration sont là au premier chargement.
     if (localStorage.getItem("jobOffersInitialized") !== "true") {
       localStorage.setItem("jobOffers", JSON.stringify(initialJobData));
       localStorage.setItem("jobOffersInitialized", "true");
     }
     
+    // On charge ensuite TOUTES les offres depuis le localStorage.
+    // Cela inclut les offres initiales et celles ajoutées par les employeurs.
     const storedOffers = JSON.parse(localStorage.getItem("jobOffers") || "[]");
-    setJobData(storedOffers.reverse());
+    setJobData(storedOffers.reverse()); // On inverse pour afficher les plus récentes en premier
   }, []);
 
 
