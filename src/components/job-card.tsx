@@ -12,7 +12,7 @@ import { ApplicationForm } from "./application-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { z } from "zod";
 
-type JobCardProps = {
+export type JobCardProps = {
   title: string;
   category: string;
   location: string;
@@ -20,6 +20,7 @@ type JobCardProps = {
   company: string;
   imageUrl: string;
   dataAiHint?: string;
+  hideApplyButton?: boolean;
 };
 
 const formSchema = z.object({
@@ -30,7 +31,7 @@ const formSchema = z.object({
 });
 
 
-export function JobCard({ title, category, location, type, company, imageUrl, dataAiHint }: JobCardProps) {
+export function JobCard({ title, category, location, type, company, imageUrl, dataAiHint, hideApplyButton = false }: JobCardProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -45,19 +46,19 @@ export function JobCard({ title, category, location, type, company, imageUrl, da
 
   const handleApplicationSubmit = (formData: z.infer<typeof formSchema>) => {
     const cvFile = formData.cvFile?.[0];
-    if (cvFile) {
-        // In a real app, you would upload this file to a server.
-        // For this simulation, we'll just log its name.
-        console.log("Application submitted for:", title, {
-            coverLetter: formData.coverLetter,
-            cvFileName: cvFile.name,
-        });
-    } else {
-         console.log("Application submitted for:", title, {
-            coverLetter: formData.coverLetter,
-            cvFileName: "Using profile CV",
-        });
-    }
+
+    const applicationData = {
+        job: { title, category, location, type, company, imageUrl, dataAiHint },
+        coverLetter: formData.coverLetter,
+        cvFileName: cvFile ? cvFile.name : "Using profile CV",
+        appliedAt: new Date().toISOString(),
+    };
+    
+    // In a real app, this would be an API call.
+    // We simulate by saving to localStorage.
+    const applications = JSON.parse(localStorage.getItem("jobApplications") || "[]");
+    applications.push(applicationData);
+    localStorage.setItem("jobApplications", JSON.stringify(applications));
     
     setIsDialogOpen(false);
     toast({
@@ -65,6 +66,7 @@ export function JobCard({ title, category, location, type, company, imageUrl, da
       description: `Votre candidature pour le poste de ${title} a bien été prise en compte.`,
       variant: "default",
     });
+     router.refresh();
   };
 
   return (
@@ -97,11 +99,13 @@ export function JobCard({ title, category, location, type, company, imageUrl, da
             </div>
           </div>
         </CardContent>
-        <CardFooter className="p-4 mt-auto">
-          <DialogTrigger asChild>
-            <Button onClick={handleApplyClick} className="w-full" variant="gradient">Postuler</Button>
-          </DialogTrigger>
-        </CardFooter>
+        {!hideApplyButton && (
+            <CardFooter className="p-4 mt-auto">
+              <DialogTrigger asChild>
+                <Button onClick={handleApplyClick} className="w-full" variant="gradient">Postuler</Button>
+              </DialogTrigger>
+            </CardFooter>
+        )}
       </Card>
       <DialogContent>
         <DialogHeader>

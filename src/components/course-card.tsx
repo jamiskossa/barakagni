@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { CourseRegistrationForm } from "./course-registration-form";
 import { z } from "zod";
 
-type CourseCardProps = {
+export type CourseCardProps = {
   title: string;
   category: string;
   duration: string;
@@ -20,6 +20,7 @@ type CourseCardProps = {
   provider: string;
   imageUrl: string;
   dataAiHint?: string;
+  hideRegisterButton?: boolean;
 };
 
 const formSchema = z.object({
@@ -29,7 +30,7 @@ const formSchema = z.object({
   diplomaFile: z.any().optional(),
 });
 
-export function CourseCard({ title, category, duration, certification, provider, imageUrl, dataAiHint }: CourseCardProps) {
+export function CourseCard({ title, category, duration, certification, provider, imageUrl, dataAiHint, hideRegisterButton = false }: CourseCardProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -44,10 +45,18 @@ export function CourseCard({ title, category, duration, certification, provider,
   
   const handleRegistrationSubmit = (formData: z.infer<typeof formSchema>) => {
     const diplomaFile = formData.diplomaFile?.[0];
-    console.log("Registration submitted for:", title, {
+    const registrationData = {
+        course: { title, category, duration, certification, provider, imageUrl, dataAiHint },
         motivation: formData.motivation,
         diplomaFileName: diplomaFile ? diplomaFile.name : "No file attached",
-    });
+        registeredAt: new Date().toISOString(),
+    };
+
+    // In a real app, this would be an API call.
+    // We simulate by saving to localStorage.
+    const registrations = JSON.parse(localStorage.getItem("courseRegistrations") || "[]");
+    registrations.push(registrationData);
+    localStorage.setItem("courseRegistrations", JSON.stringify(registrations));
     
     setIsDialogOpen(false);
     toast({
@@ -55,6 +64,7 @@ export function CourseCard({ title, category, duration, certification, provider,
       description: `Votre demande d'inscription pour le cours "${title}" a été envoyée.`,
       variant: "default",
     });
+    router.refresh();
   };
 
   return (
@@ -89,11 +99,13 @@ export function CourseCard({ title, category, duration, certification, provider,
             )}
           </div>
         </CardContent>
-        <CardFooter className="p-4 mt-auto">
-           <DialogTrigger asChild>
-                <Button onClick={handleRegisterClick} className="w-full" variant="gradient">S'inscrire</Button>
-           </DialogTrigger>
-        </CardFooter>
+        {!hideRegisterButton && (
+            <CardFooter className="p-4 mt-auto">
+               <DialogTrigger asChild>
+                    <Button onClick={handleRegisterClick} className="w-full" variant="gradient">S'inscrire</Button>
+               </DialogTrigger>
+            </CardFooter>
+        )}
       </Card>
       <DialogContent>
         <DialogHeader>
