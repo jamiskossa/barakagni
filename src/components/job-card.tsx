@@ -40,16 +40,9 @@ export function JobCard({ id, employerId, title, category, location, type, compa
 
   const handleApplyClick = () => {
     const isSignedIn = localStorage.getItem("isSignedIn") === "true";
-    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
     
     if (!isSignedIn) {
       router.push("/login");
-    } else if (currentUser.role === 'employer') {
-        toast({
-            title: "Action non autorisée",
-            description: "Les employeurs ne peuvent pas postuler à des offres.",
-            variant: "destructive"
-        })
     } else {
       setIsDialogOpen(true);
     }

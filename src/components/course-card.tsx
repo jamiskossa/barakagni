@@ -37,16 +37,9 @@ export function CourseCard({ title, category, duration, certification, provider,
 
   const handleRegisterClick = () => {
     const isSignedIn = localStorage.getItem("isSignedIn") === "true";
-    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
 
     if (!isSignedIn) {
       router.push("/login");
-    } else if (currentUser.role === 'employer') {
-        toast({
-            title: "Action non autorisée",
-            description: "Les employeurs ne peuvent pas s'inscrire à des formations.",
-            variant: "destructive"
-        })
     } else {
       setIsDialogOpen(true);
     }
