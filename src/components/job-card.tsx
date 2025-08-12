@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ApplicationForm } from "./application-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { z } from "zod";
 
 type JobCardProps = {
   title: string;
@@ -20,6 +21,14 @@ type JobCardProps = {
   imageUrl: string;
   dataAiHint?: string;
 };
+
+const formSchema = z.object({
+  coverLetter: z.string().min(10, {
+    message: "Votre lettre de motivation doit contenir au moins 10 caractères.",
+  }),
+   cvFile: z.instanceof(FileList).optional(),
+});
+
 
 export function JobCard({ title, category, location, type, company, imageUrl, dataAiHint }: JobCardProps) {
   const router = useRouter();
@@ -34,8 +43,22 @@ export function JobCard({ title, category, location, type, company, imageUrl, da
     }
   };
 
-  const handleApplicationSubmit = (formData: { coverLetter: string }) => {
-    console.log("Application submitted for:", title, formData);
+  const handleApplicationSubmit = (formData: z.infer<typeof formSchema>) => {
+    const cvFile = formData.cvFile?.[0];
+    if (cvFile) {
+        // In a real app, you would upload this file to a server.
+        // For this simulation, we'll just log its name.
+        console.log("Application submitted for:", title, {
+            coverLetter: formData.coverLetter,
+            cvFileName: cvFile.name,
+        });
+    } else {
+         console.log("Application submitted for:", title, {
+            coverLetter: formData.coverLetter,
+            cvFileName: "Using profile CV",
+        });
+    }
+    
     setIsDialogOpen(false);
     toast({
       title: "Candidature envoyée !",

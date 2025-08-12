@@ -6,11 +6,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
   coverLetter: z.string().min(10, {
     message: "Votre lettre de motivation doit contenir au moins 10 caractères.",
   }),
+  cvFile: z.instanceof(FileList).optional(),
 });
 
 type ApplicationFormProps = {
@@ -41,6 +43,24 @@ export function ApplicationForm({ onSubmit }: ApplicationFormProps) {
                   {...field}
                 />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="cvFile"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Joindre un CV (facultatif)</FormLabel>
+              <FormControl>
+                 <Input 
+                    type="file" 
+                    accept=".pdf,.doc,.docx"
+                    {...form.register("cvFile")}
+                  />
+              </FormControl>
+               <p className="text-xs text-muted-foreground">Utilisera le CV de votre profil si aucun fichier n'est joint.</p>
               <FormMessage />
             </FormItem>
           )}
