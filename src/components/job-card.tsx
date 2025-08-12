@@ -40,12 +40,22 @@ export function JobCard({ id, employerId, title, category, location, type, compa
 
   const handleApplyClick = () => {
     const isSignedIn = localStorage.getItem("isSignedIn") === "true";
-    
     if (!isSignedIn) {
       router.push("/login");
-    } else {
-      setIsDialogOpen(true);
+      return;
     }
+
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    if(currentUser.role === 'employer') {
+        toast({
+            variant: "destructive",
+            title: "Action non autorisée",
+            description: "Les employeurs ne peuvent pas postuler aux offres.",
+        });
+        return;
+    }
+
+    setIsDialogOpen(true);
   };
 
   const handleApplicationSubmit = (formData: z.infer<typeof formSchema>) => {

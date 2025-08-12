@@ -37,12 +37,22 @@ export function CourseCard({ title, category, duration, certification, provider,
 
   const handleRegisterClick = () => {
     const isSignedIn = localStorage.getItem("isSignedIn") === "true";
-
     if (!isSignedIn) {
       router.push("/login");
-    } else {
-      setIsDialogOpen(true);
+      return;
     }
+    
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    if(currentUser.role === 'employer') {
+        toast({
+            variant: "destructive",
+            title: "Action non autorisée",
+            description: "Les employeurs ne peuvent pas s'inscrire aux formations.",
+        });
+        return;
+    }
+
+    setIsDialogOpen(true);
   };
   
   const handleRegistrationSubmit = (formData: z.infer<typeof formSchema>) => {
