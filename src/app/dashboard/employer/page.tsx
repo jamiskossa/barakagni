@@ -6,9 +6,12 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { LogOut, Building, Briefcase, BarChart, PlusCircle, Edit, Inbox, User, Mail, MessageSquare } from "lucide-react";
-import type { JobCardProps } from "@/components/job-card";
+import { JobCard, type JobCardProps } from "@/components/job-card";
+import { JobOfferForm } from "@/components/job-offer-form";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
 
 
 type Employer = {
@@ -42,6 +45,13 @@ type Application = {
     applicant?: Candidate;
 };
 
+const formSchema = z.object({
+  title: z.string().min(5, { message: "Le titre doit contenir au moins 5 caractères." }),
+  category: z.string().min(2, { message: "La catégorie est requise." }),
+  location: z.string().min(2, { message: "Le lieu est requis." }),
+  type: z.string().min(2, { message: "Le type de contrat est requis." }),
+  description: z.string().min(10, { message: "La description doit contenir au moins 10 caractères." }),
+});
 
 function PlaceholderContent({ title, description, icon: Icon, actionButton }: { title: string; description: string; icon: React.ElementType, actionButton?: React.ReactNode }) {
     return (
@@ -115,9 +125,11 @@ function ApplicationReceivedCard({ application }: { application: Application }) 
 
 export default function EmployerDashboardPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [user, setUser] = useState<Employer | null>(null);
   const [jobOffers, setJobOffers] = useState<JobCardProps[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
+  const [isAddOfferOpen, setIsAddOfferOpen] = useState(false);
 
   useEffect(() => {
     // This is a one-time operation to ensure our demo employers exist in localStorage
@@ -159,7 +171,7 @@ export default function EmployerDashboardPage() {
     // In a real app, you would fetch data from your API
     const allOffers = JSON.parse(localStorage.getItem("jobOffers") || "[]");
     const myOffers = allOffers.filter((offer: any) => offer.employerId === currentUser.id);
-    setJobOffers(myOffers);
+    setJobOffers(myOffers.reverse());
     
     const allApplications = JSON.parse(localStorage.getItem("jobApplications") || "[]");
     const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
@@ -194,6 +206,30 @@ export default function EmployerDashboardPage() {
     // In a real app, this would open a profile editing form.
     alert("La modification du profil employeur sera bientôt disponible !");
   }
+
+  const handleAddOfferSubmit = (data: z.infer<typeof formSchema>) => {
+    if (!user) return;
+    
+    const newOffer: JobCardProps = {
+      id: `job_${Date.now()}`,
+      employerId: user.id,
+      company: user.companyName,
+      imageUrl: "/logo.png",
+      dataAiHint: "new job",
+      ...data,
+    };
+    
+    const allOffers = JSON.parse(localStorage.getItem("jobOffers") || "[]");
+    allOffers.push(newOffer);
+    localStorage.setItem("jobOffers", JSON.stringify(allOffers));
+    
+    setJobOffers(prev => [newOffer, ...prev]);
+    setIsAddOfferOpen(false);
+    toast({
+      title: "Offre d'emploi ajoutée !",
+      description: "Votre nouvelle offre est maintenant visible pour les candidats.",
+    });
+  };
 
   if (!user) {
     return <div className="flex items-center justify-center min-h-screen">Chargement du tableau de bord...</div>;
@@ -241,49 +277,66 @@ export default function EmployerDashboardPage() {
                  </Card>
             </aside>
             <main className="md:col-span-3">
-                 <Tabs defaultValue="applications" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="offers"><Briefcase className="mr-2 h-4 w-4" />Offres d'Emploi</TabsTrigger>
-                        <TabsTrigger value="applications"><Inbox className="mr-2 h-4 w-4" />Candidatures</TabsTrigger>
-                        <TabsTrigger value="stats"><BarChart className="mr-2 h-4 w-4" />Statistiques</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="offers" className="mt-6">
-                       <PlaceholderContent 
-                            title="Gérez vos Offres d'Emploi" 
-                            description="Ajoutez, modifiez et supprimez vos offres d'emploi ici."
-                            icon={Briefcase}
-                            actionButton={
-                                 <Button className="mt-4" variant="gradient" onClick={() => alert("Bientôt: formulaire d'ajout d'offre.")}>
+                 <Dialog open={isAddOfferOpen} onOpenChange={setIsAddOfferOpen}>
+                    <Tabs defaultValue="applications" className="w-full">
+                        <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="offers"><Briefcase className="mr-2 h-4 w-4" />Offres d'Emploi</TabsTrigger>
+                            <TabsTrigger value="applications"><Inbox className="mr-2 h-4 w-4" />Candidatures</TabsTrigger>
+                            <TabsTrigger value="stats"><BarChart className="mr-2 h-4 w-4" />Statistiques</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="offers" className="mt-6">
+                           <div className="flex justify-between items-center mb-6">
+                             <h2 className="text-2xl font-headline text-primary">Mes Offres Publiées</h2>
+                             <DialogTrigger asChild>
+                                <Button variant="gradient">
                                     <PlusCircle className="mr-2 h-4 w-4" />
                                     Ajouter une offre
                                 </Button>
-                            }
-                        />
-                    </TabsContent>
-                    <TabsContent value="applications" className="mt-6">
-                       {applications.length > 0 ? (
-                           <div className="space-y-6">
-                               {applications.map((app, index) => (
-                                   <ApplicationReceivedCard key={index} application={app} />
-                               ))}
+                             </DialogTrigger>
                            </div>
-                       ) : (
-                             <PlaceholderContent 
-                                title="Aucune Candidature Reçue" 
-                                description="Les candidatures pour vos offres d'emploi apparaîtront ici."
-                                icon={Inbox}
+                           {jobOffers.length > 0 ? (
+                               <div className="space-y-4">
+                                   {jobOffers.map((job) => <JobCard key={job.id} {...job} hideApplyButton={true} />)}
+                               </div>
+                           ) : (
+                                <PlaceholderContent 
+                                    title="Aucune Offre Publiée" 
+                                    description="Ajoutez votre première offre d'emploi pour attirer des talents."
+                                    icon={Briefcase}
+                                />
+                           )}
+                        </TabsContent>
+                        <TabsContent value="applications" className="mt-6">
+                           {applications.length > 0 ? (
+                               <div className="space-y-6">
+                                   {applications.map((app, index) => (
+                                       <ApplicationReceivedCard key={index} application={app} />
+                                   ))}
+                               </div>
+                           ) : (
+                                 <PlaceholderContent 
+                                    title="Aucune Candidature Reçue" 
+                                    description="Les candidatures pour vos offres d'emploi apparaîtront ici."
+                                    icon={Inbox}
+                                />
+                           )}
+                        </TabsContent>
+                         <TabsContent value="stats" className="mt-6">
+                            <PlaceholderContent 
+                                title="Statistiques des Candidatures" 
+                                description="Les données sur les vues et les candidatures apparaîtront ici."
+                                icon={BarChart}
+                                actionButton={undefined}
                             />
-                       )}
-                    </TabsContent>
-                     <TabsContent value="stats" className="mt-6">
-                        <PlaceholderContent 
-                            title="Statistiques des Candidatures" 
-                            description="Les données sur les vues et les candidatures apparaîtront ici."
-                            icon={BarChart}
-                            actionButton={undefined}
-                        />
-                    </TabsContent>
-                </Tabs>
+                        </TabsContent>
+                    </Tabs>
+                     <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Créer une nouvelle offre d'emploi</DialogTitle>
+                        </DialogHeader>
+                        <JobOfferForm onSubmit={handleAddOfferSubmit} />
+                    </DialogContent>
+                 </Dialog>
             </main>
         </div>
     </div>

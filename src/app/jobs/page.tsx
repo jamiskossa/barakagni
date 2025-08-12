@@ -1,6 +1,9 @@
-import { JobCard } from "@/components/job-card";
+"use client";
 
-const jobData = [
+import { useEffect, useState } from 'react';
+import { JobCard, type JobCardProps } from "@/components/job-card";
+
+const initialJobData = [
   {
     id: "job_1",
     employerId: "emp_1722020000001",
@@ -70,6 +73,21 @@ const jobData = [
 ];
 
 export default function JobsPage() {
+  const [jobData, setJobData] = useState<JobCardProps[]>(initialJobData);
+
+  useEffect(() => {
+    // In a real app, this would be a single API call.
+    // Here, we combine initial data with data from localStorage.
+    if (localStorage.getItem("jobOffersInitialized") !== "true") {
+      localStorage.setItem("jobOffers", JSON.stringify(initialJobData));
+      localStorage.setItem("jobOffersInitialized", "true");
+    }
+    
+    const storedOffers = JSON.parse(localStorage.getItem("jobOffers") || "[]");
+    setJobData(storedOffers.reverse());
+  }, []);
+
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
       <section className="text-center">
