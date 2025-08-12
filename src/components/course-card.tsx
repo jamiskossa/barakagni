@@ -1,8 +1,12 @@
+"use client";
+
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 type CourseCardProps = {
   title: string;
@@ -15,6 +19,21 @@ type CourseCardProps = {
 };
 
 export function CourseCard({ title, category, duration, certification, provider, imageUrl, dataAiHint }: CourseCardProps) {
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleRegister = () => {
+    if (localStorage.getItem("isSignedIn") !== "true") {
+      router.push("/login");
+    } else {
+      toast({
+        title: "Inscription réussie !",
+        description: `Vous avez été inscrit au cours : ${title}`,
+        variant: "default",
+      });
+    }
+  };
+
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-lg flex flex-col">
       <CardHeader className="p-0">
@@ -30,7 +49,7 @@ export function CourseCard({ title, category, duration, certification, provider,
         </div>
       </CardHeader>
       <CardContent className="p-4 flex-grow">
-        <Badge variant="outline" className="mb-2">{category}</Badge>
+        <Badge variant="secondary" className="mb-2">{category}</Badge>
         <CardTitle className="font-headline text-lg mb-2 leading-tight">{title}</CardTitle>
         <p className="text-sm text-muted-foreground mb-4">{provider}</p>
         <div className="flex flex-col space-y-2 text-sm text-muted-foreground">
@@ -47,7 +66,7 @@ export function CourseCard({ title, category, duration, certification, provider,
         </div>
       </CardContent>
       <CardFooter className="p-4 mt-auto">
-        <Button className="w-full">S'inscrire</Button>
+        <Button onClick={handleRegister} className="w-full" variant="gradient">S'inscrire</Button>
       </CardFooter>
     </Card>
   );

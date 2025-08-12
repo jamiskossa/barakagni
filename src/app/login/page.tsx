@@ -73,7 +73,7 @@ export default function LoginPage() {
                 </div>
                 <Input id="password" type="password" defaultValue="password" required />
               </div>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" variant="gradient">
                 Se connecter
               </Button>
             </div>

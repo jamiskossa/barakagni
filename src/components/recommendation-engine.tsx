@@ -22,7 +22,7 @@ const initialState: RecommendationState = null;
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} size="lg" className="w-full sm:w-auto">
+    <Button type="submit" disabled={pending} size="lg" className="w-full sm:w-auto" variant="gradient">
       {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}
       Obtenir des Recommandations
     </Button>
@@ -62,6 +62,7 @@ export function RecommendationEngine() {
             placeholder="Ex: 'Je cherche des missions d'électricité à Conakry' ou 'cours de plomberie de base'"
             className="min-h-[100px] text-base"
             required
+            spellCheck={false}
           />
           <div className="flex justify-end">
             <SubmitButton />

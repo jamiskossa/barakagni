@@ -77,7 +77,7 @@ export default function SignupPage() {
                     <Label htmlFor="password">Mot de passe</Label>
                     <Input id="password" type="password" required />
                 </div>
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" variant="gradient">
                     Créer un compte
                 </Button>
               </div>
