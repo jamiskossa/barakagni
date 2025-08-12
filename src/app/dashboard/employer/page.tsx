@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut, Building, Briefcase, BarChart, PlusCircle, Edit, Inbox, User, Mail, MessageSquare } from "lucide-react";
 import type { JobCardProps } from "@/components/job-card";
+import { useToast } from "@/hooks/use-toast";
 
 
 type Employer = {
@@ -42,7 +43,7 @@ type Application = {
 };
 
 
-function PlaceholderContent({ title, description, icon: Icon }: { title: string; description: string; icon: React.ElementType }) {
+function PlaceholderContent({ title, description, icon: Icon, actionButton }: { title: string; description: string; icon: React.ElementType, actionButton?: React.ReactNode }) {
     return (
         <Card className="text-center flex flex-col items-center justify-center h-64 border-dashed">
             <div className="flex items-center justify-center h-16 w-16 rounded-full bg-muted mb-4">
@@ -51,10 +52,7 @@ function PlaceholderContent({ title, description, icon: Icon }: { title: string;
             <CardTitle className="font-headline text-xl">{title}</CardTitle>
             <CardContent>
                 <p className="text-muted-foreground mt-2">{description}</p>
-                 <Button className="mt-4" variant="gradient">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Ajouter une offre
-                </Button>
+                 {actionButton && <div className="mt-4">{actionButton}</div>}
             </CardContent>
         </Card>
     );
@@ -62,6 +60,17 @@ function PlaceholderContent({ title, description, icon: Icon }: { title: string;
 
 function ApplicationReceivedCard({ application }: { application: Application }) {
     const { job, coverLetter, appliedAt, applicant } = application;
+    const { toast } = useToast();
+
+    const handleReply = () => {
+        // In a real app, this would open a messaging interface.
+        // Here, we just show a toast as a simulation.
+        toast({
+            title: "Réponse au candidat",
+            description: `Une interface de messagerie s'ouvrirait pour répondre à ${applicant?.firstName} ${applicant?.lastName}.`,
+        });
+    };
+
     return (
         <Card>
             <CardHeader>
@@ -74,20 +83,29 @@ function ApplicationReceivedCard({ application }: { application: Application }) 
                      <Card className="p-4 bg-muted/50">
                         <p className="font-bold">{applicant?.firstName} {applicant?.lastName}</p>
                         <p className="text-sm text-muted-foreground">{applicant?.specialty}</p>
-                        <a href={`mailto:${applicant?.email}`} className="text-sm text-accent hover:underline flex items-center gap-2 mt-2">
-                           <Mail className="h-4 w-4"/> {applicant?.email}
-                        </a>
+                        <p className="text-sm text-accent flex items-center gap-2 mt-2 cursor-default" title="L'email est masqué pour la confidentialité">
+                           <Mail className="h-4 w-4"/> Email masqué
+                        </p>
                         <p className="text-xs mt-2 italic">{applicant?.bio}</p>
                     </Card>
                 </div>
                 <div className="md:col-span-2 space-y-4">
                     <h4 className="font-semibold text-primary flex items-center"><MessageSquare className="mr-2 h-5 w-5"/> Lettre de motivation</h4>
-                    <div className="p-4 border rounded-md whitespace-pre-wrap bg-background text-sm">
+                    <div className="p-4 border rounded-md whitespace-pre-wrap bg-background text-sm max-h-48 overflow-y-auto">
                         {coverLetter}
                     </div>
-                    <Button>
-                        Répondre au candidat
-                    </Button>
+                     <div className="flex gap-4">
+                        <Button onClick={handleReply}>
+                            <MessageSquare className="mr-2 h-4 w-4" />
+                            Répondre au candidat
+                        </Button>
+                         <Button variant="outline" asChild>
+                            <a href={`https://wa.me/?text=Bonjour%20${applicant?.firstName},%20concernant%20votre%20candidature%20pour%20${job.title}...`} target="_blank" rel="noopener noreferrer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                                Contacter sur WhatsApp
+                            </a>
+                        </Button>
+                    </div>
                 </div>
             </CardContent>
         </Card>
@@ -139,7 +157,9 @@ export default function EmployerDashboardPage() {
     setUser(currentUser);
     
     // In a real app, you would fetch data from your API
-    setJobOffers([]);
+    const allOffers = JSON.parse(localStorage.getItem("jobOffers") || "[]");
+    const myOffers = allOffers.filter((offer: any) => offer.employerId === currentUser.id);
+    setJobOffers(myOffers);
     
     const allApplications = JSON.parse(localStorage.getItem("jobApplications") || "[]");
     const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
@@ -148,13 +168,13 @@ export default function EmployerDashboardPage() {
     // Filter applications for the currently logged-in employer
     const myApplications = allApplications.filter((app: any) => app.job.employerId === currentUser.id);
     
-    const applicationsWithData = myApplications.map((app: any, index: number) => {
+    const applicationsWithData = myApplications.map((app: any) => {
         // In a real app, you'd have an applicantId on the application object.
-        // Here we just simulate finding a user. For a better simulation, we should find
-        // the user who made the application, but for now we'll just show some data.
+        // Here we simulate finding a user.
         return {
             ...app,
-            applicant: candidateUsers[index % candidateUsers.length] // Just a placeholder for demo
+            // Find the applicant data, this is still a simulation
+            applicant: candidateUsers.find((u: Candidate) => u.id === app.applicantId) || candidateUsers[0]
         }
     }).reverse();
 
@@ -169,6 +189,11 @@ export default function EmployerDashboardPage() {
     router.push("/");
     router.refresh();
   };
+  
+  const handleEditProfile = () => {
+    // In a real app, this would open a profile editing form.
+    alert("La modification du profil employeur sera bientôt disponible !");
+  }
 
   if (!user) {
     return <div className="flex items-center justify-center min-h-screen">Chargement du tableau de bord...</div>;
@@ -179,8 +204,17 @@ export default function EmployerDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <aside className="md:col-span-1">
                  <Card className="w-full text-center p-6">
-                    <div className="mx-auto mb-4 flex items-center justify-center h-32 w-32 rounded-full bg-muted border-4 border-primary">
-                        <Building className="h-16 w-16 text-primary" />
+                    <div className="relative mx-auto mb-4 w-32 h-32">
+                        <Image 
+                            src="/logo.png" 
+                            alt={`${user.companyName} logo`}
+                            width={128}
+                            height={128}
+                            className="rounded-full border-4 border-primary object-contain"
+                         />
+                         <Button size="icon" className="absolute bottom-0 right-0 rounded-full" variant="secondary" onClick={() => alert("Fonctionnalité de modification de photo à venir.")}>
+                            <Edit className="h-4 w-4" />
+                         </Button>
                     </div>
                     <CardTitle className="text-2xl font-headline">{user.companyName}</CardTitle>
                     <CardDescription>{user.email}</CardDescription>
@@ -199,7 +233,7 @@ export default function EmployerDashboardPage() {
                          {user.website && <a href={user.website} target="_blank" rel="noreferrer" className="text-accent hover:underline break-all">{user.website}</a>}
                     </CardContent>
                      <CardFooter>
-                        <Button variant="outline" className="w-full">
+                        <Button variant="outline" className="w-full" onClick={handleEditProfile}>
                             <Edit className="mr-2 h-4 w-4" />
                             Modifier les infos
                         </Button>
@@ -214,17 +248,17 @@ export default function EmployerDashboardPage() {
                         <TabsTrigger value="stats"><BarChart className="mr-2 h-4 w-4" />Statistiques</TabsTrigger>
                     </TabsList>
                     <TabsContent value="offers" className="mt-6">
-                       {jobOffers.length > 0 ? (
-                           <div className="space-y-6">
-                               {/* Map through job offers */}
-                           </div>
-                       ) : (
-                            <PlaceholderContent 
-                                title="Gérez vos Offres d'Emploi" 
-                                description="Vous n'avez pas encore publié d'offre. Commencez dès maintenant !"
-                                icon={Briefcase}
-                            />
-                       )}
+                       <PlaceholderContent 
+                            title="Gérez vos Offres d'Emploi" 
+                            description="Ajoutez, modifiez et supprimez vos offres d'emploi ici."
+                            icon={Briefcase}
+                            actionButton={
+                                 <Button className="mt-4" variant="gradient" onClick={() => alert("Bientôt: formulaire d'ajout d'offre.")}>
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    Ajouter une offre
+                                </Button>
+                            }
+                        />
                     </TabsContent>
                     <TabsContent value="applications" className="mt-6">
                        {applications.length > 0 ? (
@@ -234,8 +268,8 @@ export default function EmployerDashboardPage() {
                                ))}
                            </div>
                        ) : (
-                            <PlaceholderContent 
-                                title="Candidatures Reçues" 
+                             <PlaceholderContent 
+                                title="Aucune Candidature Reçue" 
                                 description="Les candidatures pour vos offres d'emploi apparaîtront ici."
                                 icon={Inbox}
                             />
@@ -246,6 +280,7 @@ export default function EmployerDashboardPage() {
                             title="Statistiques des Candidatures" 
                             description="Les données sur les vues et les candidatures apparaîtront ici."
                             icon={BarChart}
+                            actionButton={undefined}
                         />
                     </TabsContent>
                 </Tabs>

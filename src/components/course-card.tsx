@@ -36,8 +36,17 @@ export function CourseCard({ title, category, duration, certification, provider,
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleRegisterClick = () => {
-    if (localStorage.getItem("isSignedIn") !== "true") {
+    const isSignedIn = localStorage.getItem("isSignedIn") === "true";
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+
+    if (!isSignedIn) {
       router.push("/login");
+    } else if (currentUser.role === 'employer') {
+        toast({
+            title: "Action non autorisée",
+            description: "Les employeurs ne peuvent pas s'inscrire à des formations.",
+            variant: "destructive"
+        })
     } else {
       setIsDialogOpen(true);
     }
@@ -45,8 +54,11 @@ export function CourseCard({ title, category, duration, certification, provider,
   
   const handleRegistrationSubmit = (formData: z.infer<typeof formSchema>) => {
     const diplomaFile = formData.diplomaFile?.[0];
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    
     const registrationData = {
         course: { title, category, duration, certification, provider, imageUrl, dataAiHint },
+        applicantId: currentUser.id,
         motivation: formData.motivation,
         diplomaFileName: diplomaFile ? diplomaFile.name : "No file attached",
         registeredAt: new Date().toISOString(),

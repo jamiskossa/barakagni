@@ -39,8 +39,17 @@ export function JobCard({ id, employerId, title, category, location, type, compa
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleApplyClick = () => {
-    if (localStorage.getItem("isSignedIn") !== "true") {
+    const isSignedIn = localStorage.getItem("isSignedIn") === "true";
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    
+    if (!isSignedIn) {
       router.push("/login");
+    } else if (currentUser.role === 'employer') {
+        toast({
+            title: "Action non autorisée",
+            description: "Les employeurs ne peuvent pas postuler à des offres.",
+            variant: "destructive"
+        })
     } else {
       setIsDialogOpen(true);
     }
@@ -48,9 +57,11 @@ export function JobCard({ id, employerId, title, category, location, type, compa
 
   const handleApplicationSubmit = (formData: z.infer<typeof formSchema>) => {
     const cvFile = formData.cvFile?.[0];
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
 
     const applicationData = {
         job: { id, employerId, title, category, location, type, company, imageUrl, dataAiHint },
+        applicantId: currentUser.id,
         coverLetter: formData.coverLetter,
         cvFileName: cvFile ? cvFile.name : "Using profile CV",
         appliedAt: new Date().toISOString(),

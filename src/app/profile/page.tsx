@@ -102,11 +102,11 @@ function SentMessageCard({ to, subject, message, date }: { to: string, subject: 
                     {subject}
                 </CardTitle>
                 <CardDescription>
-                    Envoyé à: {to} - {new Date(date).toLocaleDateString("fr-FR")}
+                    Envoyé à : {to} - {new Date(date).toLocaleDateString("fr-FR")}
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <p className="whitespace-pre-wrap p-4 bg-muted/50 rounded-md">{message}</p>
+                <p className="whitespace-pre-wrap p-4 bg-muted/50 rounded-md text-sm">{message}</p>
             </CardContent>
         </Card>
     );
@@ -137,12 +137,12 @@ export default function ProfilePage() {
       setUser(currentUser);
       
       const storedApplications = JSON.parse(localStorage.getItem("jobApplications") || "[]");
-      // In a real app, you would filter based on the current user's ID
-      setApplications(storedApplications.reverse());
+      const myApplications = storedApplications.filter((app: any) => app.applicantId === currentUser.id);
+      setApplications(myApplications.reverse());
       
       const storedRegistrations = JSON.parse(localStorage.getItem("courseRegistrations") || "[]");
-      // In a real app, you would filter based on the current user's ID
-      setRegistrations(storedRegistrations.reverse());
+      const myRegistrations = storedRegistrations.filter((reg: any) => reg.applicantId === currentUser.id);
+      setRegistrations(myRegistrations.reverse());
 
     } else {
         router.push("/login");
@@ -174,7 +174,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <aside className="md:col-span-1">
                  <Card className="w-full text-center p-6">
-                    <div className="mx-auto mb-4">
+                    <div className="relative mx-auto mb-4 w-32 h-32">
                         <Image 
                             src="/logo.png" 
                             alt="User profile"
@@ -182,6 +182,9 @@ export default function ProfilePage() {
                             height={128}
                             className="rounded-full border-4 border-primary mx-auto"
                         />
+                         <Button size="icon" className="absolute bottom-0 right-0 rounded-full" variant="secondary" onClick={() => alert("Fonctionnalité de modification de photo à venir.")}>
+                            <Edit className="h-4 w-4" />
+                         </Button>
                     </div>
                     <CardTitle className="text-2xl font-headline">{user.firstName} {user.lastName}</CardTitle>
                     <CardDescription>{user.email}</CardDescription>
