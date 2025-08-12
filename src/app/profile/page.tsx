@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, User } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 type User = {
   id: string;
@@ -60,15 +60,8 @@ export default function ProfilePage() {
           <CardTitle className="text-2xl font-headline">{user.firstName} {user.lastName}</CardTitle>
           <CardDescription>{user.email}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-            <div className="space-y-4">
-                 <h3 className="font-headline text-lg font-semibold">Informations</h3>
-                 <div className="text-muted-foreground space-y-2">
-                    <p><span className="font-medium text-foreground">Localisation:</span> Conakry, Guinée</p>
-                    <p><span className="font-medium text-foreground">Métier:</span> Électricien</p>
-                 </div>
-            </div>
-          <Button onClick={handleSignOut} className="w-full">
+        <CardContent>
+          <Button onClick={handleSignOut} className="w-full" variant="gradient">
             <LogOut className="mr-2 h-4 w-4" />
             Se déconnecter
           </Button>

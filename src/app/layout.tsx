@@ -8,6 +8,17 @@ export const metadata: Metadata = {
   description: "Votre passerelle vers les opportunités d'emploi et de formation en Afrique de l'Ouest.",
 };
 
+function Footer() {
+  return (
+    <footer className="w-full py-4 mt-auto bg-background/50 backdrop-blur-sm">
+      <div className="container mx-auto text-center text-sm text-muted-foreground">
+        <p>Application créée par Yattara Ousmane</p>
+      </div>
+    </footer>
+  )
+}
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,6 +35,7 @@ export default function RootLayout({
         <div className="relative flex min-h-screen flex-col">
           <Navbar />
           <main className="flex-1">{children}</main>
+          <Footer />
         </div>
         <Toaster />
       </body>
