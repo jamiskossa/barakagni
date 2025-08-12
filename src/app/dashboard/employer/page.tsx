@@ -6,8 +6,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Building, Briefcase, BarChart, PlusCircle, Edit } from "lucide-react";
-import { JobCard, type JobCardProps } from "@/components/job-card";
+import { LogOut, Building, Briefcase, BarChart, PlusCircle, Edit, Inbox, User, Mail, MessageSquare } from "lucide-react";
+import type { JobCardProps } from "@/components/job-card";
 
 
 type Employer = {
@@ -18,6 +18,27 @@ type Employer = {
   sector?: string;
   description?: string;
   website?: string;
+};
+
+type Candidate = {
+  id: string;
+  role?: 'candidate';
+  firstName: string;
+  lastName: string;
+  email: string;
+  specialty?: string;
+  bio?: string;
+  portfolioUrl?: string;
+  cvDataUri?: string;
+  cvFileName?: string;
+};
+
+type Application = {
+    job: JobCardProps;
+    coverLetter: string;
+    appliedAt: string;
+    // We'll simulate finding the user who applied
+    applicant?: Candidate;
 };
 
 
@@ -39,12 +60,46 @@ function PlaceholderContent({ title, description, icon: Icon }: { title: string;
     );
 }
 
+function ApplicationReceivedCard({ application }: { application: Application }) {
+    const { job, coverLetter, appliedAt, applicant } = application;
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline text-xl">Candidature pour : {job.title}</CardTitle>
+                <CardDescription>Reçue le {new Date(appliedAt).toLocaleDateString('fr-FR')}</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-1 space-y-4">
+                    <h4 className="font-semibold text-primary flex items-center"><User className="mr-2 h-5 w-5"/> Candidat</h4>
+                     <Card className="p-4 bg-muted/50">
+                        <p className="font-bold">{applicant?.firstName} {applicant?.lastName}</p>
+                        <p className="text-sm text-muted-foreground">{applicant?.specialty}</p>
+                        <a href={`mailto:${applicant?.email}`} className="text-sm text-accent hover:underline flex items-center gap-2 mt-2">
+                           <Mail className="h-4 w-4"/> {applicant?.email}
+                        </a>
+                        <p className="text-xs mt-2 italic">{applicant?.bio}</p>
+                    </Card>
+                </div>
+                <div className="md:col-span-2 space-y-4">
+                    <h4 className="font-semibold text-primary flex items-center"><MessageSquare className="mr-2 h-5 w-5"/> Lettre de motivation</h4>
+                    <div className="p-4 border rounded-md whitespace-pre-wrap bg-background text-sm">
+                        {coverLetter}
+                    </div>
+                    <Button>
+                        Répondre au candidat
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    )
+}
+
 
 export default function EmployerDashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<Employer | null>(null);
-  // This would come from your database
   const [jobOffers, setJobOffers] = useState<JobCardProps[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
 
   useEffect(() => {
     const signedIn = localStorage.getItem("isSignedIn") === "true";
@@ -57,16 +112,31 @@ export default function EmployerDashboardPage() {
     
     const currentUser = JSON.parse(currentUserData);
     if (currentUser.role !== 'employer') {
-        // Redirect if a non-employer tries to access this page
         router.push("/profile");
         return;
     }
     
     setUser(currentUser);
     
-    // In a real app, you would fetch job offers created by this employer
-    // For now, it's an empty array
+    // In a real app, you would fetch data from your API
     setJobOffers([]);
+    
+    // Fetch all applications and simulate finding the applicant's data
+    const allApplications = JSON.parse(localStorage.getItem("jobApplications") || "[]");
+    const allUsers = JSON.parse(localStorage.getItem("users") || "[]");
+    
+    // In a real app, the applicant's ID would be stored with the application.
+    // Here, we just assign the first found candidate to each application for demonstration.
+    const candidateUsers = allUsers.filter((u: any) => u.role === 'candidate');
+    
+    const applicationsWithData = allApplications.map((app: any, index: number) => ({
+        ...app,
+        // This is a rough simulation. A real app would have a userId on the application.
+        applicant: candidateUsers[index % candidateUsers.length] 
+    })).reverse();
+
+
+    setApplications(applicationsWithData);
 
   }, [router]);
 
@@ -114,9 +184,10 @@ export default function EmployerDashboardPage() {
                  </Card>
             </aside>
             <main className="md:col-span-3">
-                 <Tabs defaultValue="offers" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2">
+                 <Tabs defaultValue="applications" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="offers"><Briefcase className="mr-2 h-4 w-4" />Offres d'Emploi</TabsTrigger>
+                        <TabsTrigger value="applications"><Inbox className="mr-2 h-4 w-4" />Candidatures</TabsTrigger>
                         <TabsTrigger value="stats"><BarChart className="mr-2 h-4 w-4" />Statistiques</TabsTrigger>
                     </TabsList>
                     <TabsContent value="offers" className="mt-6">
@@ -129,6 +200,21 @@ export default function EmployerDashboardPage() {
                                 title="Gérez vos Offres d'Emploi" 
                                 description="Vous n'avez pas encore publié d'offre. Commencez dès maintenant !"
                                 icon={Briefcase}
+                            />
+                       )}
+                    </TabsContent>
+                    <TabsContent value="applications" className="mt-6">
+                       {applications.length > 0 ? (
+                           <div className="space-y-6">
+                               {applications.map((app, index) => (
+                                   <ApplicationReceivedCard key={index} application={app} />
+                               ))}
+                           </div>
+                       ) : (
+                            <PlaceholderContent 
+                                title="Candidatures Reçues" 
+                                description="Les candidatures pour vos offres d'emploi apparaîtront ici."
+                                icon={Inbox}
                             />
                        )}
                     </TabsContent>
